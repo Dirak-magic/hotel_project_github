@@ -1,0 +1,586 @@
+{% extends 'base.html' %}
+{% load vnd_format %}
+
+{% block content %}
+<div class="container py-5" style="margin-top: 60px;">
+    
+    <!-- Nút Quay lại & Breadcrumb -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'brand_detail' prop.brand.slug %}" class="btn btn-outline-secondary rounded-circle me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+        </a>
+        <nav aria-label="breadcrumb" class="mb-0">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/" class="text-secondary text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'brand_detail' prop.brand.slug %}" class="text-secondary text-decoration-none">{{ prop.brand.name }}</a></li>
+                <li class="breadcrumb-item active fw-bold" aria-current="page">{{ room.name }}</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row g-5">
+        <!-- CỘT TRÁI (8): Thông tin & Hình ảnh -->
+        <div class="col-lg-8">
+            <!-- Tên & Thông số cơ bản -->
+            <div class="mb-4">
+                <h1 class="display-5 fw-bold mb-2" style="font-family: 'Playfair Display', serif;">{{ room.name }}</h1>
+                <p class="text-secondary mb-3">Thuộc cơ sở: <strong>{{ prop.name }}</strong></p>
+            </div>
+
+            <!-- Thư viện ảnh (Swiper Slider) -->
+            <div class="room-gallery-slider mb-5 rounded-4 overflow-hidden shadow-sm position-relative">
+                <div class="swiper room-swiper">
+                    <div class="swiper-wrapper">
+                        <!-- Cover Image -->
+                        <div class="swiper-slide">
+                            <a href="{{ room.cover_image.url }}" class="glightbox" data-gallery="room-gallery">
+                                <div class="ratio ratio-16x9">
+                                    <img src="{{ room.cover_image.url }}" alt="{{ room.name }}" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                                </div>
+                            </a>
+                        </div>
+                        <!-- Extra Images -->
+                        {% for img in room.images.all %}
+                        <div class="swiper-slide">
+                            <a href="{{ img.image.url }}" class="glightbox" data-gallery="room-gallery">
+                                <div class="ratio ratio-16x9">
+                                    <img src="{{ img.image.url }}" alt="{{ room.name }}" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <!-- Add Pagination & Navigation -->
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-next text-white" style="text-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
+                    <div class="swiper-button-prev text-white" style="text-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
+                </div>
+            </div>
+
+            <!-- HỆ THỐNG TABS -->
+            <ul class="nav nav-pills mb-4 luxury-tabs" id="roomTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold px-4 py-2 rounded-pill me-2" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button" role="tab"><i class="bi bi-info-circle me-2"></i>Chi tiết</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-4 py-2 rounded-pill me-2" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar" type="button" role="tab"><i class="bi bi-calendar-check me-2"></i>Kiểm tra phòng trống</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-4 py-2 rounded-pill" id="policy-tab" data-bs-toggle="tab" data-bs-target="#policy" type="button" role="tab"><i class="bi bi-shield-check me-2"></i>Chính sách</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="roomTabsContent">
+                <!-- TAB 1: MÔ TẢ & TIỆN ÍCH -->
+                <div class="tab-pane fade show active" id="desc" role="tabpanel" tabindex="0">
+                    <div class="luxury-box p-4 rounded-4 position-relative overflow-hidden mb-5">
+                        <i class="bi bi-quote position-absolute top-0 end-0 text-luxury-gold" style="font-size: 8rem; opacity: 0.08; transform: translate(15px, -30px); pointer-events: none;"></i>
+                        <div class="position-relative z-1">
+                            <h5 class="fw-bold text-luxury-gold mb-4" style="font-family: 'Playfair Display', serif;">Chi tiết hạng phòng</h5>
+                            
+                            <div class="text-body" style="line-height: 1.9; font-size: 1.05rem; font-weight: 500;">
+                                {{ room.description|linebreaksbr }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if room.amenities.exists %}
+                    <div class="d-flex align-items-center mb-4 mt-2">
+                        <h4 class="fw-bold mb-0 text-uppercase" style="font-family: 'Playfair Display', serif; letter-spacing: 2px;">Tiện ích phòng</h4>
+                    </div>
+                    <div class="row g-3 mb-5">
+                        {% for amenity in room.amenities.all %}
+                        <div class="col-sm-6 col-md-4">
+                            <div class="luxury-box p-3 rounded-4 d-flex align-items-center h-100" style="border-left-width: 3px; border-radius: 12px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                                <i class="bi bi-check2-circle text-luxury-gold fs-4 me-2 d-flex align-items-center justify-content-center" style="width: 30px;"></i>
+                                <span class="text-body fw-bold" style="font-size: 0.95rem;">{{ amenity.name }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- TAB 2: LỊCH TRỐNG -->
+                <div class="tab-pane fade" id="calendar" role="tabpanel" tabindex="0">
+                    <div class="luxury-box p-4 rounded-4 mb-5 text-center position-relative w-100">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25 w-100">
+                            <h5 class="fw-bold text-luxury-gold mb-0" style="font-family: 'Playfair Display', serif;">Tình trạng phòng</h5>
+                            <div id="legend" class="d-none d-flex gap-3 text-secondary" style="font-size: 0.85rem;">
+                                <div class="d-flex align-items-center"><span class="d-inline-block rounded-circle me-1" style="width: 12px; height: 12px; background: #333; border: 1px solid #555;"></span>Đã đặt</div>
+                                <div class="d-flex align-items-center"><span class="d-inline-block rounded-circle me-1" style="width: 12px; height: 12px; background: #28a745; border: 1px solid #40d060;"></span>Còn trống</div>
+                            </div>
+                        </div>
+                        
+                        <div id="calendar-container" class="mt-3 w-100" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <div id="calendar-overlay">
+                                <p class="text-secondary mb-4">Nhấn nút bên dưới để đồng bộ lịch trống trực tiếp từ hệ thống khách sạn.</p>
+                                <button id="btn-check-avail" class="btn btn-lg rounded-pill px-5 py-3 shadow fw-bold" style="background: linear-gradient(135deg, #d4af37 0%, #b89728 100%); color: white; border: none;">
+                                    <i class="bi bi-calendar2-check me-2"></i>Tải dữ liệu mới nhất
+                                </button>
+                            </div>
+                            
+                            <!-- Spinner (ẩn mặc định) -->
+                            <div id="calendar-loading" class="d-none">
+                                <div class="spinner-border text-luxury-gold mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                                <h6 class="text-secondary">Đang cập nhật tình trạng phòng...</h6>
+                            </div>
+                            
+                            <!-- Chỗ chứa Flatpickr -->
+                            <div id="flatpickr-inline"></div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: CHÍNH SÁCH -->
+                <div class="tab-pane fade" id="policy" role="tabpanel" tabindex="0">
+                    <div class="luxury-box p-4 rounded-4 mb-5">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-luxury-gold mb-3"><i class="bi bi-clock-history me-2"></i>Nhận / Trả phòng</h6>
+                                <p class="mb-1 text-body"><strong>Check-in:</strong> Sau {{ room.checkin_time }}</p>
+                                <p class="mb-0 text-body"><strong>Check-out:</strong> Trước {{ room.checkout_time }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-luxury-gold mb-3"><i class="bi bi-info-square me-2"></i>Lưu ý chung & Riêng biệt</h6>
+                                <div class="text-body mb-0" style="line-height: 1.8;">
+                                    {% if room.custom_policies %}
+                                        {{ room.custom_policies|linebreaksbr }}
+                                    {% else %}
+                                        <ul class="ps-3 mb-0">
+                                            <li>Vui lòng mang theo CCCD/Hộ chiếu khi nhận phòng.</li>
+                                            <li>Chính sách phụ thu áp dụng riêng cho trẻ em và người lớn thứ 3.</li>
+                                            <li>Vui lòng giữ gìn vệ sinh và không hút thuốc trong phòng kín.</li>
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CỘT PHẢI (4): Đặt phòng (Sticky Sidebar) -->
+        <div class="col-lg-4">
+            <div class="sticky-sidebar" style="position: sticky; top: 100px; z-index: 10;">
+                
+                <!-- Box Giá -->
+                <div class="luxury-box p-4 rounded-4 mb-4 position-relative overflow-hidden">
+                    {% if room.sale_price %}
+                        <div class="text-body text-decoration-line-through mb-2" style="opacity: 0.65; font-weight: 500; font-size: 1.05rem;">Giá gốc: {{ room.display_original_price|vnd }} đ</div>
+                        <div class="fs-1 fw-bold"><span class="text-luxury-sale">{{ room.display_price|vnd }} đ</span><span class="fs-6 fw-normal text-secondary">/đêm</span></div>
+                    {% else %}
+                        <div class="text-secondary mb-2" style="opacity: 0.8; font-weight: 500;">Giá tham khảo:</div>
+                        <div class="fs-1 fw-bold"><span class="text-luxury-gold">{{ room.display_price|vnd }} đ</span><span class="fs-6 fw-normal text-secondary">/đêm</span></div>
+                    {% endif %}
+                    
+                    {% if room.is_weekend_now and room.weekend_surcharge > 0 %}
+                        <div class="mt-3 pt-3 border-top" style="border-color: rgba(212, 175, 55, 0.2) !important; font-size: 0.9rem; color: #d4af37; font-style: italic;">
+                            <i class="bi bi-info-circle me-1"></i>* Đã bao gồm phụ thu cuối tuần ({{ room.weekend_surcharge|vnd }} đ)
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Box Liên hệ -->
+                <div class="luxury-box p-4 rounded-4 text-center border-0 shadow-sm">
+                    <h5 class="fw-bold mb-3" style="font-family: 'Playfair Display', serif;">Bạn muốn đặt phòng này?</h5>
+                    <p class="text-body small mb-4 opacity-75">Liên hệ trực tiếp với Lễ tân để nhận tư vấn và chốt phòng nhanh nhất.</p>
+                    
+                    <div class="d-grid gap-3">
+                        {% if prop.hotline %}
+                        <a href="https://zalo.me/{{ prop.hotline|cut:' ' }}" target="_blank" class="btn btn-lg rounded-pill fw-bold text-white d-flex align-items-center justify-content-center shadow-sm social-cta-btn zalo-btn">
+                            <i class="bi bi-chat-dots-fill me-2 fs-4"></i> Chat qua Zalo
+                        </a>
+                        {% endif %}
+                        
+                        {% if prop.facebook_link %}
+                        <a href="{{ prop.facebook_link }}" target="_blank" class="btn btn-lg rounded-pill fw-bold text-white d-flex align-items-center justify-content-center shadow-sm social-cta-btn fb-btn">
+                            <i class="bi bi-facebook me-2 fs-4"></i> Nhắn tin Facebook
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- CSS & JS Assets -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+
+<script src="https://cdn.jsdelivr.net/gh/mcstudios/glightbox/dist/js/glightbox.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // GLightbox
+        const lightbox = GLightbox({
+            selector: '.glightbox',
+            touchNavigation: true,
+            loop: true,
+            zoomable: true
+        });
+
+        // Swiper
+        const swiper = new Swiper('.room-swiper', {
+            loop: true,
+            speed: 600,
+            autoplay: {
+                delay: 4000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
+    });
+</script>
+
+<style>
+    /* Iframe Google Calendar */
+    .calendar-wrapper iframe {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100% !important;
+        height: 100% !important;
+        border: 0;
+    }
+
+    /* Gradient 7 màu lấp lánh cho Giá - BULLETPROOF */
+    .text-luxury-gold { 
+        background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C) !important;
+        background-size: 200% auto !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        color: transparent !important;
+        animation: shine 3s linear infinite;
+        display: inline-block;
+    }
+    .text-luxury-sale { 
+        background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%, #ff416c 200%) !important;
+        background-size: 200% auto !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        color: transparent !important;
+        animation: shine 3s linear infinite;
+        display: inline-block;
+    }
+    
+    
+    
+    @keyframes shine {
+        to { background-position: 200% center; }
+    }
+
+    /* Buttons CTA */
+    .social-cta-btn {
+        border: none;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    .zalo-btn { background-color: #0068FF !important; color: #ffffff !important; border: none !important; }
+    .fb-btn { background-color: #0866FF !important; color: #ffffff !important; border: none !important; }
+    
+    .social-cta-btn::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+        z-index: -1;
+    }
+    .social-cta-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 104, 255, 0.4) !important;
+        filter: brightness(1.1);
+    }
+    .social-cta-btn:hover::after {
+        transform: translateX(100%);
+    }
+
+    /* Luxury Box */
+    .luxury-box {
+        background: linear-gradient(145deg, #fcfaf6, #f3efe6);
+        border: 1px solid rgba(212, 175, 55, 0.25);
+        border-left: 5px solid #d4af37;
+        box-shadow: 0 8px 24px rgba(212, 175, 55, 0.08);
+        transition: all 0.4s ease;
+    }
+    .luxury-box:hover {
+        box-shadow: 0 12px 32px rgba(212, 175, 55, 0.15);
+        transform: translateY(-3px);
+    }
+    [data-bs-theme="dark"] .luxury-box {
+        background: linear-gradient(145deg, #1c1a17, #24211c);
+        border: 1px solid rgba(212, 175, 55, 0.15);
+        border-left: 5px solid #d4af37;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(212, 175, 55, 0.05);
+    }
+    [data-bs-theme="dark"] .luxury-box .text-body {
+        color: #e4e0d9 !important;
+    }
+    [data-bs-theme="dark"] .luxury-box .text-secondary {
+        color: #a9a499 !important;
+    }
+
+    /* Tabs Styling */
+    .luxury-tabs .nav-link {
+        color: var(--bs-body-color);
+        background: transparent;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        transition: all 0.3s ease;
+    }
+    .luxury-tabs .nav-link:hover {
+        background: rgba(212, 175, 55, 0.05);
+    }
+    .luxury-tabs .nav-link.active {
+        background: #d4af37;
+        color: #fff;
+        border-color: #d4af37;
+        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+    }
+
+    /* Swiper Styling */
+    .swiper-button-next::after, .swiper-button-prev::after {
+        font-size: 1.5rem !important;
+        font-weight: bold;
+    }
+    .swiper-pagination-bullet-active {
+        background-color: #d4af37 !important;
+    }
+</style>
+
+
+    <!-- Thư viện Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    
+    <style>
+        /* LUXURY FLATPICKR THEME */
+        .flatpickr-calendar {
+            background: #1e1e1e !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5) !important;
+            color: #fff !important;
+            font-family: inherit !important;
+            border-radius: 12px !important;
+            padding: 20px !important;
+            width: 100% !important;
+            max-width: 100% !important; /* To hơn xíu */
+            margin: 0 auto 30px auto !important;
+        }
+        .flatpickr-innerContainer {
+            display: block !important;
+            width: 100% !important;
+        }
+        .flatpickr-rContainer {
+            width: 100% !important;
+        }
+        .flatpickr-days {
+            width: 100% !important;
+        }
+        .dayContainer {
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            justify-content: space-around !important;
+        }
+        .flatpickr-day {
+            max-width: 13% !important;
+            height: 50px !important; /* To hơn */
+            line-height: 1.2 !important;
+            margin: 5px 0 !important;
+            font-size: 1.1rem !important;
+            border-radius: 8px !important;
+            border: 1px solid transparent !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .flatpickr-months .flatpickr-month {
+            background: #1e1e1e !important;
+            color: #d4af37 !important;
+            height: 40px;
+        }
+        .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: #1e1e1e !important;
+            color: #d4af37 !important;
+            font-weight: bold;
+        }
+        .flatpickr-current-month input.cur-year {
+            color: #d4af37 !important;
+            font-weight: bold;
+        }
+        .flatpickr-weekdays {
+            background: #1e1e1e !important;
+        }
+        span.flatpickr-weekday {
+            color: #888 !important;
+            font-weight: bold;
+        }
+        .flatpickr-day {
+            max-width: 13% !important;
+            height: 50px !important; /* To hơn */
+            line-height: 1.2 !important;
+            margin: 5px 0 !important;
+            font-size: 1.1rem !important;
+            border-radius: 8px !important;
+            border: 1px solid transparent !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .flatpickr-day.today {
+            border-color: rgba(212, 175, 55, 0.5) !important;
+        }
+        .flatpickr-day:hover {
+            background: rgba(212, 175, 55, 0.2) !important;
+            border-color: rgba(212, 175, 55, 0.4) !important;
+        }
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange, .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus, .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay, .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
+            background: #28a745 !important;
+            color: #fff !important;
+            border-color: #28a745 !important;
+            font-weight: bold;
+        }
+        .flatpickr-day.inRange {
+            background: rgba(40, 167, 69, 0.1) !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+        }
+        .flatpickr-day.inRange {
+            background: rgba(212, 175, 55, 0.15) !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+        }
+        
+        /* Trạng thái phòng */
+        /* Ngày ĐÃ ĐẶT */
+        .flatpickr-day.flatpickr-disabled, .flatpickr-day.fully-booked {
+            background: #2a2a2a !important;
+            color: #666 !important;
+            text-decoration: line-through;
+            border: 1px solid transparent !important;
+        }
+        
+        /* Ngày CÒN TRỐNG (Màu Xanh Lá) */
+        .flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay) {
+            background: rgba(40, 167, 69, 0.15) !important;
+            border: 1px solid rgba(40, 167, 69, 0.6) !important;
+            color: #fff !important;
+            font-weight: bold;
+        }
+        
+        /* Hover vào ngày còn trống */
+        .flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay):hover {
+            background: rgba(40, 167, 69, 0.5) !important;
+            color: #fff !important;
+            cursor: pointer;
+        }
+
+        .rooms-left-badge {
+            display: block;
+            font-size: 0.75rem; /* To hơn để dễ đọc */
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 4px;
+            font-weight: 500;
+            line-height: 1;
+        }
+        .flatpickr-day.selected .rooms-left-badge, 
+        .flatpickr-day.startRange .rooms-left-badge, 
+        .flatpickr-day.endRange .rooms-left-badge {
+            display: block;
+            font-size: 0.75rem; /* To hơn để dễ đọc */
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 4px;
+            font-weight: 500;
+            line-height: 1;
+        }
+    </style>
+    
+    <script>
+        document.getElementById('btn-check-avail').addEventListener('click', function() {
+            // Hiển thị loading
+            document.getElementById('calendar-overlay').classList.add('d-none');
+            document.getElementById('calendar-loading').classList.remove('d-none');
+            
+            // Gọi API
+            fetch("{% url 'check_availability' room.pk %}")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('calendar-loading').classList.add('d-none');
+                
+                if (data.error) {
+                    alert(data.error);
+                    document.getElementById('calendar-overlay').classList.remove('d-none');
+                    return;
+                }
+                
+                // Hiển thị Flatpickr
+                document.getElementById('legend').classList.remove('d-none');
+                
+                flatpickr("#flatpickr-inline", {
+                    inline: true,
+                    mode: "range",
+                    locale: {
+                        firstDayOfWeek: 1,
+                        weekdays: {
+                            shorthand: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+                            longhand: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"]
+                        },
+                        months: {
+                            shorthand: ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"],
+                            longhand: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"]
+                        }
+                    },
+                    minDate: "today",
+                    disable: data.booked_dates || [],
+                    onDayCreate: function(dObj, dStr, fp, dayElem) {
+                        let dateObj = dayElem.dateObj;
+                        let y = dateObj.getFullYear();
+                        let m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        let d = String(dateObj.getDate()).padStart(2, '0');
+                        let dateString = y + "-" + m + "-" + d;
+                        
+                        if (data.availability && data.availability[dateString]) {
+                            let availInfo = data.availability[dateString];
+                            
+                            // Nếu có nhiều phòng (VD: Handstay) -> Hiện số phòng còn lại
+                            if (availInfo.available > 0 && availInfo.total > 1) {
+                                let badge = document.createElement("span");
+                                badge.className = "rooms-left-badge";
+                                badge.innerHTML = "Còn " + availInfo.available;
+                                dayElem.appendChild(badge);
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi lấy dữ liệu!');
+                document.getElementById('calendar-loading').classList.add('d-none');
+                document.getElementById('calendar-overlay').classList.remove('d-none');
+            });
+        });
+    </script>
+{% endblock %}

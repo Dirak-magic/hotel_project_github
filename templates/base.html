@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Khách sạn & Homestay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bs-body-bg); }
+        .navbar { box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .navbar-brand { font-weight: bold; letter-spacing: 1px; color: var(--bs-body-color); }
+        .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; }
+        .hover-card:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important; }
+        
+        /* Ẩn hoàn toàn giao diện xấu xí của Google Translate */
+        .skiptranslate iframe { display: none !important; }
+        body { top: 0px !important; }
+        #goog-gt-tt { display: none !important; }
+        .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+    
+        
+        /* THEME OVERRIDES BASED ON DESIGN SPEC */
+        
+                
+        
+        .navbar-brand {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-block;
+        }
+        .navbar-brand:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+            color: #fce38a !important;
+        }
+
+        /* --- GLASS HEADER --- */
+        .glass-header {
+            background: rgba(0, 0, 0, 0.05) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* Buttons inside glass header always white/gold for contrast */
+        .glass-header .btn-outline-secondary {
+            color: rgba(255, 255, 255, 0.9) !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+        }
+        .glass-header .btn-outline-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+        }
+
+        /* --- CSS VARS --- */
+        
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #1B1F24;
+            --bs-body-bg-rgb: 27, 31, 36;
+            --bs-secondary-bg: #22272E;
+            --bs-tertiary-bg: #1E2328;
+        }
+        /* --- DARK MODE --- */
+        [data-bs-theme="dark"] body { background-color: #1B1F24 !important; color: #f8f9fa !important; }
+        
+        
+        [data-bs-theme="dark"] .amenities-section { background-color: #1B1F24 !important; border-top: 1px solid rgba(255,255,255,0.05) !important; }
+        [data-bs-theme="dark"] footer, [data-bs-theme="dark"] .footer-section { background-color: #0E1114 !important; }
+        
+        
+        /* Luxury Navbar Toggler */
+        .luxury-toggler {
+            border: 1px solid rgba(212, 175, 55, 0.4) !important;
+            padding: 0.25rem 0.6rem;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .luxury-toggler:focus, .luxury-toggler:active {
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3) !important;
+            border-color: #d4af37 !important;
+        }
+        .luxury-toggler i {
+            color: #d4af37;
+            font-size: 1.8rem;
+        }
+        </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg py-2 position-absolute w-100 start-0 top-0 glass-header" style="z-index: 1030;">
+        <div class="container">
+            <a class="navbar-brand text-decoration-none fw-bold" href="/" style="font-family: 'Playfair Display', serif; color: #d4af37;">{{ site_setting.site_name|default:"AMBERGRIS" }}</a>
+            <div class="d-flex align-items-center order-lg-last">
+                <!-- Reception Hours Highlight (Always visible) -->
+                <div class="d-inline-flex align-items-center px-2 py-1 rounded-pill me-2 ms-lg-3 shadow-sm border border-warning" style="background: rgba(212, 175, 55, 0.1); color: #d4af37; font-size: 0.75rem; font-weight: 700; white-space: nowrap;">
+                    <i class="bi bi-clock-fill me-1"></i> <span class="d-none d-sm-inline">Lễ tân:&nbsp;</span>07:00 - 23:00
+                </div>
+                <button class="navbar-toggler luxury-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto ms-lg-5 mt-3 mt-lg-0 gap-1 gap-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase fw-semibold text-white" href="/" style="letter-spacing: 2px; font-size: 0.8rem;">Trang Chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase fw-semibold text-white" href="#" style="letter-spacing: 2px; font-size: 0.8rem;">Về Chúng Tôi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase fw-semibold text-white" href="{% url 'contact' %}" style="letter-spacing: 2px; font-size: 0.8rem; color: #fce38a !important;">Liên Hệ & Vị Trí</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center mt-3 mt-lg-0">
+                    
+
+                    <!-- Dropdown Ngôn ngữ -->
+                    <div class="dropdown d-inline-block">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle rounded-pill px-3 fw-semibold d-inline-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="lang-display">
+                            <span class="fi fi-vn me-2" style="border-radius: 2px;"></span> Tiếng Việt
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3">
+                            <li>
+                                <button onclick="translateLanguage('vi', 'Tiếng Việt', 'fi-vn')" class="dropdown-item py-2 fw-bold text-secondary d-flex align-items-center"><span class="fi fi-vn me-2" style="border-radius: 2px;"></span> Tiếng Việt</button>
+                            </li>
+                            <li>
+                                <button onclick="translateLanguage('en', 'English', 'fi-gb')" class="dropdown-item py-2 fw-bold text-secondary d-flex align-items-center"><span class="fi fi-gb me-2" style="border-radius: 2px;"></span> English</button>
+                            </li>
+                            <li>
+                                <button onclick="translateLanguage('zh-CN', '中文', 'fi-cn')" class="dropdown-item py-2 fw-bold text-secondary d-flex align-items-center"><span class="fi fi-cn me-2" style="border-radius: 2px;"></span> 中文</button>
+                            </li>
+                            <li>
+                                <button onclick="translateLanguage('ko', '한국어', 'fi-kr')" class="dropdown-item py-2 fw-bold text-secondary d-flex align-items-center"><span class="fi fi-kr me-2" style="border-radius: 2px;"></span> 한국어</button>
+                            </li>
+                            <li>
+                                <button onclick="translateLanguage('ru', 'Русский', 'fi-ru')" class="dropdown-item py-2 fw-bold text-secondary d-flex align-items-center"><span class="fi fi-ru me-2" style="border-radius: 2px;"></span> Русский</button>
+                            </li>
+                            <li>
+                                <button onclick="translateLanguage('fr', 'Français', 'fi-fr')" class="dropdown-item py-2 fw-bold text-secondary d-flex align-items-center"><span class="fi fi-fr me-2" style="border-radius: 2px;"></span> Français</button>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="google_translate_element" style="display: none;"></div>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-dark text-white pt-5 pb-3">
+        <div id="dynamic-property-footer" class="container mb-5"></div>
+        <div class="container text-center border-top border-secondary pt-4">
+            <p class="mb-0 text-secondary">{{ site_setting.footer_text|default:"© 2026 Ambergris." }}</p>
+            {% if site_setting.hotline %}<p class="mb-0 mt-2 text-secondary small">Hotline Tổng đài: {{ site_setting.hotline }}</p>{% endif %}
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    
+
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'vi',
+                includedLanguages: 'en,vi,ko,zh-CN,ru,fr',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+
+        function translateLanguage(lang, langName, flagClass) {
+            document.getElementById('lang-display').innerHTML = '<span class="fi ' + flagClass + ' me-2" style="border-radius: 2px;"></span> ' + langName;
+            
+            var selectField = document.querySelector(".goog-te-combo");
+            if (selectField) {
+                selectField.value = lang;
+                selectField.dispatchEvent(new Event('change'));
+            }
+        }
+        
+        setInterval(function() {
+            document.body.style.top = '0px';
+        }, 500);
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- HEADER BANNER -->
+<div class="container-fluid position-relative overflow-hidden p-0 bg-dark d-flex align-items-center justify-content-center" style="min-height: 45vh; padding-top: 5rem !important;">
+    <!-- Nền Dark Gradient xịn xò -->
+    <div class="position-absolute w-100 h-100 start-0 top-0" style="background: radial-gradient(circle at center, #1b2128 0%, #0d1114 100%); z-index: 0;"></div>
+    
+    <div class="position-relative text-center text-white px-3" style="z-index: 2;">
+        <p class="text-uppercase mb-3" style="letter-spacing: 4px; font-size: 0.85rem; font-weight: 600; color: #d4af37;">Kết nối cùng chúng tôi</p>
+        <h1 class="display-4 fw-bold mb-0" style="font-family: 'Playfair Display', serif; letter-spacing: 1px; text-shadow: 0 4px 20px rgba(0,0,0,0.8);">Liên hệ & Vị trí</h1>
+    </div>
+</div>
+
+<!-- NỘI DUNG CHÍNH -->
+<div class="container-fluid py-5" style="background-color: var(--bs-body-bg); border-top: 1px solid rgba(255,255,255,0.05);">
+    <div class="container py-4">
+        
+        <div class="row gy-5">
+            {% for prop in properties %}
+            <div class="col-12">
+                <div class="card bg-transparent border-0 rounded-4 overflow-hidden shadow-lg p-0" style="background: rgba(255,255,255,0.02) !important; border: 1px solid rgba(255,255,255,0.05) !important;">
+                    <div class="row g-0">
+                        <!-- Thông tin (Bên Trái) -->
+                        <div class="col-lg-5 p-4 p-lg-5 d-flex flex-column justify-content-center position-relative">
+                            
+                            <div class="mb-4">
+                                <span class="badge text-uppercase mb-2 px-3 py-2 rounded-pill" style="background: rgba(212, 175, 55, 0.15); color: #fce38a; letter-spacing: 2px; font-size: 0.7rem; font-weight: 700;">{{ prop.brand.name }}</span>
+                                <h3 class="fw-bold mb-0 text-white" style="font-family: 'Playfair Display', serif; font-size: 2rem;">{{ prop.name }}</h3>
+                            </div>
+                            
+                            <ul class="list-unstyled mb-4" style="color: rgba(255,255,255,0.8); line-height: 1.8;">
+                                <li class="mb-3 d-flex align-items-start">
+                                    <i class="bi bi-geo-alt-fill fs-5 me-3" style="color: #d4af37;"></i>
+                                    <span>{{ prop.address|default:"Đang cập nhật địa chỉ" }}</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="bi bi-telephone-fill fs-5 me-3" style="color: #d4af37;"></i>
+                                    <span>
+                                        {% if prop.hotline %}
+                                        <a href="tel:{{ prop.hotline }}" class="text-white text-decoration-none fw-semibold" style="font-size: 1.1rem; letter-spacing: 1px;">{{ prop.hotline }}</a>
+                                        {% else %}
+                                        Đang cập nhật
+                                        {% endif %}
+                                    </span>
+                                </li>
+                                {% if prop.email %}
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="bi bi-envelope-fill fs-5 me-3" style="color: #d4af37;"></i>
+                                    <a href="mailto:{{ prop.email }}" class="text-white text-decoration-none">{{ prop.email }}</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                            
+                            <!-- Nút bấm Zalo/FB -->
+                            <div class="d-flex gap-3 mt-auto pt-3 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+                                {% if prop.hotline %}
+                                <a href="https://zalo.me/{{ prop.hotline|cut:' ' }}" target="_blank" class="btn fw-semibold px-4 py-2 text-uppercase d-inline-flex align-items-center" style="background-color: #0068FF; color: white; letter-spacing: 1px; font-size: 0.8rem; border-radius: 6px;">
+                                    Chat Zalo
+                                </a>
+                                {% endif %}
+                                {% if prop.facebook_link %}
+                                <a href="{{ prop.facebook_link }}" target="_blank" class="btn fw-semibold px-4 py-2 text-uppercase d-inline-flex align-items-center" style="background-color: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); letter-spacing: 1px; font-size: 0.8rem; border-radius: 6px;">
+                                    <i class="bi bi-facebook me-2"></i> Fanpage
+                                </a>
+                                {% endif %}
+                            </div>
+                            
+                        </div>
+                        
+                        <!-- Bản đồ (Bên Phải) -->
+                        <div class="col-lg-7 position-relative" style="min-height: 400px; background: #222;">
+                            {% if prop.google_maps_iframe %}
+                                <div class="w-100 h-100 map-wrapper">
+                                    {{ prop.google_maps_iframe|safe }}
+                                </div>
+                            {% else %}
+                                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+                                    <i class="bi bi-map fs-1 mb-2"></i>
+                                    <p>Chưa có dữ liệu bản đồ</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-muted py-5">
+                <i class="bi bi-geo-alt display-4 mb-3 d-block opacity-50"></i>
+                <p>Hệ thống đang cập nhật các cơ sở mới...</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</div>
+
+<style>
+    /* Làm cho iframe bản đồ fill toàn bộ không gian */
+    .map-wrapper iframe {
+        width: 100% !important;
+        height: 100% !important;
+        border: 0 !important;
+        filter: grayscale(20%) contrast(1.1); /* Chỉnh nhẹ màu map cho hợp với Dark Mode */
+    }
+</style>
+{% endblock %}

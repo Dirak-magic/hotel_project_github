@@ -1,0 +1,500 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<!-- Khu vực Hero Banner (Ảnh nền cỡ lớn) -->
+{% if site_setting.homepage_background_video %}
+<div class="hero-section position-relative overflow-hidden" style="min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 10vh; padding-bottom: 5vh; z-index: 1;">
+    <video autoplay loop muted playsinline class="position-absolute w-100 h-100" style="top: 0; left: 0; object-fit: cover; z-index: -2;">
+        <source src="{{ site_setting.homepage_background_video.url }}" type="video/mp4">
+    </video>
+    <div class="position-absolute w-100 h-100 top-0 start-0" style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)); z-index: -1;"></div>
+{% else %}
+<div class="hero-section position-relative" style="
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('{% if site_setting.homepage_background %}{{ site_setting.homepage_background.url }}{% else %}https://images.unsplash.com/photo-1561501900-3701fa6a0864?q=80&w=2670&auto=format&fit=crop{% endif %}'); 
+    background-size: cover; 
+    background-position: center; 
+    background-attachment: fixed; /* Tạo hiệu ứng Parallax trượt mượt mà */
+    min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 10vh; padding-bottom: 5vh;">
+{% endif %}
+    
+    <div class="text-center text-white px-3" style="margin-bottom: 2vh;">
+        <p class="text-uppercase mb-3" style="letter-spacing: 4px; font-size: 0.85rem; font-weight: 600;">Khởi nguồn cảm hứng</p>
+        <h1 class="display-3 fw-bold mb-4" style="text-shadow: 2px 2px 15px rgba(0,0,0,0.5);">Khám phá không gian lưu trú</h1>
+        <p class="lead" style="max-width: 650px; margin: 0 auto; text-shadow: 1px 1px 8px rgba(0,0,0,0.5); line-height: 1.8;">
+            Khám phá các không gian nghỉ dưỡng tuyệt vời mang phong cách kiến trúc độc bản thuộc hệ thống Ambergris.
+        </p>
+    </div>
+
+<!-- Khu vực Thẻ Thương hiệu (Phong cách Địa Trung Hải - Mediterranean Luxury) -->
+<div class="container" style="position: relative; z-index: 10;">
+    <div class="row g-5 justify-content-center pb-5">
+        {% for brand in brands %}
+        <div class="col-md-4 card-stagger stagger-{{ forloop.counter }}" style="animation-delay: calc({{ forloop.counter }} * 0.4s);">
+            <!-- Thẻ bài mang âm hưởng Địa Trung Hải với hình vòm (Arch) -->
+            <div class="card h-100 border-0 luxury-med-card bg-transparent text-start">
+                
+                <!-- Khu vực ảnh vòm -->
+                <a href="{% url 'brand_detail' brand.slug %}" class="d-block med-arch-wrapper mx-auto mb-4 overflow-hidden position-relative shadow-lg">
+                    {% if brand.logo %}
+                        <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="med-arch-img">
+                    {% else %}
+                        <div class="med-arch-img d-flex align-items-center justify-content-center" style="background-color: #e9ecef;">
+                            <span class="text-muted">Chưa có ảnh</span>
+                        </div>
+                    {% endif %}
+                    <div class="med-arch-overlay"></div>
+                </a>
+                
+                <!-- Nội dung bên dưới -->
+                <h3 class="med-brand-title mb-3 med-brand-name-raw" style="display:none;">{{ brand.name }}</h3>
+                <div class="med-brand-formatted mb-3 text-start px-2 mt-2"></div>
+                
+                <p class="med-brand-desc mb-3 px-2" style="font-size: 0.95rem; font-weight: 400; line-height: 1.6; color: #ffffff !important; text-shadow: 0px 2px 8px rgba(0,0,0,0.9);">{{ brand.description|truncatewords:20 }}</p>
+                
+                <div class="mt-3 pb-4 text-start px-2">
+                    <a href="{% url 'brand_detail' brand.slug %}" class="btn med-discover-btn">
+                        <span class="btn-text">KHÁM PHÁ NGAY</span>
+                        <span class="line-arrow"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center mt-5">
+            <div class="alert alert-light shadow" role="alert">
+                Chưa có dữ liệu Thương hiệu.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+<!-- END HERO SECTION -->
+
+<!-- KHU VỰC VIDEO GIỚI THIỆU -->
+{% if site_setting.promo_video_url %}
+<div class="video-section position-relative" style="
+    background-image: url('{% if site_setting.promo_video_bg %}{{ site_setting.promo_video_bg.url }}{% else %}https://images.unsplash.com/photo-1542314831-c6a420325142?q=80&w=2000&auto=format&fit=crop{% endif %}'); 
+    background-size: cover; 
+    background-position: center; 
+    background-attachment: fixed; 
+    min-height: 60vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    margin-top: 0;">
+    
+    <!-- Lớp phủ tối mờ -->
+    <div class="position-absolute w-100 h-100 top-0 start-0" style="background-color: rgba(0,0,0,0.4);"></div>
+    
+    <!-- Nút Play -->
+    <div class="position-relative z-3 text-center text-white">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#videoModal" class="play-btn d-inline-flex align-items-center justify-content-center mb-4 shadow-lg" style="width: 90px; height: 90px; background: rgba(212, 175, 55, 0.9); border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; transition: transform 0.3s ease, background 0.3s ease;">
+            <i class="bi bi-play-fill" style="font-size: 3rem; color: #fff; margin-left: 8px;"></i>
+        </a>
+        <h3 class="fw-bold text-uppercase" style="letter-spacing: 3px; ">Khám Phá Không Gian</h3>
+    </div>
+</div>
+
+<!-- Modal Youtube -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0 pb-0 justify-content-end">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <div class="ratio ratio-16x9 shadow-lg rounded overflow-hidden">
+                    <iframe id="videoIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Xử lý tự động parse URL Youtube và auto-play khi mở Modal
+    document.addEventListener("DOMContentLoaded", function() {
+        const videoModal = document.getElementById('videoModal');
+        if(videoModal) {
+            videoModal.addEventListener('show.bs.modal', function () {
+                const iframe = document.getElementById('videoIframe');
+                const rawUrl = "{{ site_setting.promo_video_url|escapejs }}";
+                let embedUrl = rawUrl;
+                if(rawUrl.includes('watch?v=')) {
+                    embedUrl = rawUrl.replace('watch?v=', 'embed/');
+                }
+                // Hỗ trợ link youtu.be
+                if(rawUrl.includes('youtu.be/')) {
+                    embedUrl = rawUrl.replace('youtu.be/', 'youtube.com/embed/');
+                }
+                iframe.src = embedUrl + (embedUrl.includes('?') ? '&' : '?') + "autoplay=1";
+            });
+            videoModal.addEventListener('hide.bs.modal', function () {
+                document.getElementById('videoIframe').src = "";
+            });
+        }
+    });
+</script>
+<style>
+    .play-btn:hover { transform: scale(1.1); background: #b58c1d !important; }
+</style>
+{% endif %}
+
+
+{% if site_setting.sale_active %}
+<!-- BỘ BANNER KHUYẾN MÃI (LUXURY EDITION) -->
+<div class="container-fluid position-relative sale-section p-0" style="background-image: linear-gradient(rgba(15, 15, 15, 0.75), rgba(15, 15, 15, 0.85)), url('{% if site_setting.sale_background %}{{ site_setting.sale_background.url }}{% else %}https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2000&auto=format&fit=crop{% endif %}'); background-size: cover; background-position: center; background-attachment: fixed; box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
+    <div class="container py-5">
+        <div class="row align-items-center justify-content-between my-5">
+            
+            <!-- Cột trái: Nội dung -->
+            <div class="col-lg-6 text-white mb-5 mb-lg-0 pe-lg-5">
+                <div class="mb-4">
+                    <span class="text-uppercase" style="letter-spacing: 4px; color: #d4af37; font-size: 0.85rem; border-bottom: 1px solid #d4af37; padding-bottom: 6px; font-weight: 800; color: #fce38a;">Đặc Quyền Giới Hạn</span>
+                </div>
+                
+                <!-- Font serif sang trọng cho Tiêu đề -->
+                <h2 class="display-4 mb-4" style="color: #ffffff; font-family: 'Playfair Display', serif; letter-spacing: 2px; line-height: 1.3;">{{ site_setting.sale_title }}</h2>
+                
+                <div class="mb-5 text-light" style="line-height: 2; opacity: 0.8; font-size: 1.05rem; font-weight: 300;">
+                    {{ site_setting.sale_description|linebreaksbr }}
+                </div>
+                
+                {% if site_setting.sale_button_link %}
+                <a href="{{ site_setting.sale_button_link }}" target="_blank" class="btn luxury-btn px-5 py-3 text-uppercase fw-semibold" style="letter-spacing: 2px; font-size: 0.85rem; transition: all 0.4s ease;">
+                    {{ site_setting.sale_button_text }}
+                </a>
+                {% endif %}
+            </div>
+            
+            <!-- Cột phải: Đếm ngược -->
+            <div class="col-lg-5">
+                <div class="d-flex flex-wrap justify-content-lg-end gap-3 countdown-wrapper" id="sale-countdown" data-endtime="{{ site_setting.sale_end_date|date:'c' }}">
+                    <!-- Sẽ được điền bằng Javascript bên dưới -->
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- ĐƯA DẢI TIỆN ÍCH VÀO BÊN TRONG SALE SECTION ĐỂ DÙNG CHUNG BACKGROUND -->
+
+    <!-- Dải Icon Tiện Ích Toàn Cầu (Global Amenities Strip) -->
+    <div class="container-fluid py-5 bg-transparent border-0" style="border-top: 1px solid rgba(255,255,255,0.05) !important;">
+        <div class="container">
+            <div class="row g-4 text-center">
+                <!-- Item 1 -->
+                <div class="col-6 col-md-3 amenity-item">
+                    <i class="bi bi-wifi luxury-icon"></i>
+                    <h6 class="text-uppercase luxury-text mt-3 mb-0">Free WiFi</h6>
+                </div>
+                <!-- Item 2 -->
+                <div class="col-6 col-md-3 amenity-item">
+                    <i class="bi bi-p-circle luxury-icon"></i>
+                    <h6 class="text-uppercase luxury-text mt-3 mb-0">Secure Parking</h6>
+                </div>
+                <!-- Item 3 -->
+                <div class="col-6 col-md-3 amenity-item">
+                    <i class="bi bi-cup-hot luxury-icon"></i>
+                    <h6 class="text-uppercase luxury-text mt-3 mb-0">Coffee & Cinebar</h6>
+                </div>
+                <!-- Item 4 -->
+                <div class="col-6 col-md-3 amenity-item">
+                    <i class="bi bi-bell luxury-icon"></i>
+                    <h6 class="text-uppercase luxury-text mt-3 mb-0">Room Service</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<style>
+    .luxury-btn {
+        background-color: transparent;
+        color: #d4af37;
+        border: 1px solid #d4af37;
+        border-radius: 0;
+    }
+    .luxury-btn:hover {
+        background-color: #d4af37;
+        color: #111;
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    }
+    .luxury-timer-box {
+        padding: 1.5rem 1rem;
+        width: 105px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(212, 175, 55, 0.25);
+        border-radius: 8px;
+        backdrop-filter: blur(15px);
+        transition: all 0.4s ease;
+    }
+    .luxury-timer-box:hover {
+        border-color: rgba(212, 175, 55, 0.7);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+    }
+</style>
+{% else %}
+    <!-- NẾU KHÔNG CÓ SALE SECTION THÌ DẢI TIỆN ÍCH ĐỨNG ĐỘC LẬP -->
+
+    <!-- Dải Icon Tiện Ích Toàn Cầu (Global Amenities Strip) -->
+    <div class="container-fluid py-5 bg-transparent border-0" style="border-top: 1px solid rgba(255,255,255,0.05) !important;">
+        <div class="container">
+            <div class="row g-4 text-center">
+                <!-- Item 1 -->
+                <div class="col-6 col-md-3 amenity-item">
+                    <i class="bi bi-wifi luxury-icon"></i>
+                    <h6 class="text-uppercase luxury-text mt-3 mb-0">Free WiFi</h6>
+                </div>
+                <!-- Item 2 -->
+                <div class="col-6 col-md-3 amenity-item">
+                    <i class="bi bi-p-circle luxury-icon"></i>
+                    <h6 class="text-uppercase luxury-text mt-3 mb-0">Secure Parking</h6>
+                </div>
+                <!-- Item 3 -->
+                <div class="col-6 col-md-3 amenity-item">
+                    <i class="bi bi-cup-hot luxury-icon"></i>
+                    <h6 class="text-uppercase luxury-text mt-3 mb-0">Coffee & Cinebar</h6>
+                </div>
+                <!-- Item 4 -->
+                <div class="col-6 col-md-3 amenity-item">
+                    <i class="bi bi-bell luxury-icon"></i>
+                    <h6 class="text-uppercase luxury-text mt-3 mb-0">Room Service</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endif %}
+<style>
+    .amenity-item {
+        cursor: pointer;
+        padding: 10px;
+    }
+    .luxury-icon {
+        font-size: 2.2rem;
+        color: #d4af37; /* Đậm màu lên */
+        text-shadow: 0 4px 15px rgba(0,0,0,0.8); /* Bóng đen để nổi trên nền ảnh */
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: inline-block;
+    }
+    .luxury-text {
+        font-size: 0.85rem;
+        letter-spacing: 3px;
+        color: #ffffff; /* Trắng sáng */
+        text-shadow: 0 2px 10px rgba(0,0,0,0.9); /* Bóng mờ để nổi bật */
+        transition: all 0.4s ease;
+        font-weight: 600; /* Đậm hơn */
+    }
+    /* Hiệu ứng Hover Light Glowing */
+    .amenity-item:hover .luxury-icon {
+        color: #fce38a; /* Vàng sáng rực */
+        text-shadow: 0 0 25px rgba(252, 227, 138, 0.8); /* Phát sáng phát quang */
+        transform: translateY(-8px) scale(1.05);
+    }
+    .amenity-item:hover .luxury-text {
+        color: #d4af37;
+        text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+</style>
+
+</div>
+
+
+<style>
+    /* MEDITERRANEAN LUXURY CARD STYLES */
+    .luxury-med-card {
+        transition: all 0.5s ease;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0;
+    }
+    .luxury-med-card:hover {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    /* Staggered Cards (Lệch nhau dọc) via margin so it doesn't conflict with animation */
+    @media (min-width: 992px) {
+        .stagger-2 .luxury-med-card { margin-top: 50px !important; }
+        .stagger-3 .luxury-med-card { margin-top: 100px !important; }
+    }
+
+    .luxury-med-card:hover .med-arch-wrapper {
+        transform: translateY(-12px);
+        box-shadow: 0 20px 40px rgba(212, 175, 55, 0.2);
+        border-color: rgba(212, 175, 55, 0.4);
+    }
+    
+    /* Thiết kế mượt mà, editorial style */
+    .med-arch-wrapper {
+        width: 100%;
+        aspect-ratio: 3 / 4; /* More elegant ratio */
+        border-radius: 200px 200px 12px 12px; /* Arch shape */
+        background-color: transparent;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .med-arch-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    
+    .med-arch-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.05);
+        transition: background 0.4s ease;
+    }
+    
+    .luxury-med-card:hover .med-arch-img {
+        transform: scale(1.1);
+    }
+    .luxury-med-card:hover .med-arch-overlay {
+        background: rgba(0,0,0,0.15);
+    }
+    
+    .med-brand-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .med-discover-btn {
+        display: inline-flex;
+        align-items: center;
+        background: transparent;
+        color: #d4af37;
+        border: none !important;
+        padding: 0;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 600;
+        transition: all 0.4s ease;
+        text-decoration: none !important;
+    }
+    
+    /* Trigger hover on button when hovering ANYWHERE on the card */
+    .luxury-med-card:hover .med-discover-btn,
+    .med-discover-btn:hover {
+        color: #fce38a !important;
+        text-shadow: 0 0 20px rgba(212, 175, 55, 0.8), 0 0 10px rgba(252, 227, 138, 0.5);
+    }
+    
+    .line-arrow {
+        display: inline-block;
+        width: 40px;
+        height: 1px;
+        background-color: #d4af37;
+        margin-left: 12px;
+        position: relative;
+        transition: all 0.4s ease;
+    }
+    .line-arrow::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: -4px;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-left: 5px solid #d4af37;
+        opacity: 0;
+        transition: all 0.4s ease;
+        transform: translateX(-5px);
+    }
+    .luxury-med-card:hover .med-discover-btn .line-arrow,
+    .med-discover-btn:hover .line-arrow {
+        width: 55px;
+        background-color: #fce38a;
+        box-shadow: 0 0 8px rgba(252, 227, 138, 0.6);
+    }
+    .luxury-med-card:hover .med-discover-btn .line-arrow::after,
+    .med-discover-btn:hover .line-arrow::after {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    .med-brand-link {
+        text-decoration: none;
+        color: #ffffff !important; text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+        
+        transition: color 0.3s ease;
+    }
+    .med-brand-link:hover {
+        color: #d4af37 !important;
+    }
+    
+    /* Hiệu ứng sáng chữ khi hover vào bất kỳ đâu trên Thẻ Cơ sở */
+    .luxury-med-card:hover .med-brand-link {
+        color: #d4af37 !important;
+    }
+    
+    .med-brand-desc {
+        color: #ffffff !important; 
+        text-shadow: 0px 2px 10px rgba(0,0,0,1);
+        font-size: 0.95rem;
+        line-height: 1.7;
+        font-weight: 400;
+    }
+</style>
+
+
+<style>
+    .card-stagger {
+        opacity: 0;
+        transform: translateY(40px);
+        animation: fadeUpSeq 1.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+    }
+    @keyframes fadeUpSeq {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+
+<!-- Formatting brand names -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.luxury-med-card').forEach(card => {
+        const rawTitle = card.querySelector('.med-brand-name-raw');
+        const formattedContainer = card.querySelector('.med-brand-formatted');
+        if (rawTitle && formattedContainer) {
+            const text = rawTitle.innerText.trim();
+            const parts = text.split(' ');
+            if(parts.length > 1) {
+                const brand = parts[0];
+                const loc = parts.slice(1).join(' ');
+                formattedContainer.innerHTML = `
+                    <a href="${card.querySelector('.med-discover-btn').href}" class="text-decoration-none d-block">
+                        <div style="font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; color: #d4af37; font-family: 'Segoe UI', sans-serif; font-weight: 600; margin-bottom: 6px;">${brand}</div>
+                        <div style="font-size: 1.8rem; font-family: 'Playfair Display', serif; color: #ffffff; letter-spacing: 1px; font-weight: 400; line-height: 1.2;">${loc}</div>
+                    </a>
+                `;
+            } else {
+                formattedContainer.innerHTML = `
+                    <a href="${card.querySelector('.med-discover-btn').href}" class="text-decoration-none d-block">
+                        <div style="font-size: 1.8rem; font-family: 'Playfair Display', serif; color: #ffffff; letter-spacing: 1px; font-weight: 400; line-height: 1.2;">${text}</div>
+                    </a>
+                `;
+            }
+        }
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django
+*.log
+local_settings.py
+# db.sqlite3 # Uncomment this line if you don't want to upload your database to GitHub
+# media/ # Uncomment this line if you don't want to upload user-uploaded images to GitHub
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Local Credentials & Secrets
+*.json
+!package.json
+!package-lock.json
+
+# Local startup scripts
+*.vbs

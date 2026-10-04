@@ -1,0 +1,824 @@
+{% extends 'base.html' %}
+{% load vnd_format %}
+
+{% block content %}
+<!-- INTERACTIVE LUXURY SPLIT HERO -->
+{% if brand.banner %}
+<div class="container-fluid position-relative overflow-hidden p-0 bg-dark">
+    <!-- Ảnh to (Full-width Background Image) -->
+    <img id="mainHeroImage" src="{{ brand.banner.url }}" class="position-absolute w-100 h-100 start-0 top-0" style="object-fit: cover; object-position: center; transition: opacity 0.4s ease; z-index: 0;">
+    
+    <!-- Gradient Overlay (Darker on the left for text contrast, fading to transparent on the right) -->
+    <div class="position-absolute w-100 h-100 start-0 top-0 d-none d-lg-block" style="background: linear-gradient(to right, rgba(15,15,15,0.95) 0%, rgba(15,15,15,0.75) 40%, transparent 100%); z-index: 1;"></div>
+    <!-- Mobile Gradient (Darker on top for text) -->
+    <div class="position-absolute w-100 h-100 start-0 top-0 d-block d-lg-none" style="background: linear-gradient(to bottom, rgba(15,15,15,0.9) 0%, rgba(15,15,15,0.5) 60%, transparent 100%); z-index: 1;"></div>
+    <!-- Bottom Gradient for Thumbnails -->
+    <div class="position-absolute w-100 h-100 start-0 top-0" style="background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 35%); z-index: 1;"></div>
+
+    <div class="row w-100 m-0 align-items-stretch position-relative" style="z-index: 2;">
+        
+        <!-- Cột Trái: Nội dung & Tiện ích (50%) -->
+        <div class="col-lg-5 px-4 px-lg-5 py-5 d-flex flex-column justify-content-center pt-lg-5" style="min-height: 70vh; padding-top: 7rem !important;">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4 mt-lg-0 mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/" class="text-decoration-none fw-bold" style="color: #d4af37; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Trang Chủ</a>
+                    </li>
+                    <li class="breadcrumb-item active text-uppercase fw-bold dropdown d-flex align-items-center" aria-current="page" style="font-size: 0.75rem; letter-spacing: 2px;">
+                        <a class="text-decoration-none dropdown-toggle brand-selector-btn" href="#" role="button" data-bs-toggle="dropdown" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+                            {{ brand.name }}
+                        </a>
+                        <ul class="dropdown-menu shadow-lg border-0 mt-2 rounded-4" style="background-color: var(--bs-body-bg);">
+                            {% for b in all_brands %}
+                                {% if b.id != brand.id %}
+                                <li><a class="dropdown-item text-uppercase py-2" href="{% url 'brand_detail' slug=b.slug %}" style="font-size: 0.75rem; letter-spacing: 1px; color: var(--bs-body-color);">{{ b.name }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ol>
+            </nav>
+            
+            <h1 class="display-4 fw-bold mb-3" style="font-family: 'Playfair Display', serif; letter-spacing: 1px; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
+                {{ brand.name }}
+            </h1>
+            
+            <div class="mb-4 position-relative" style="font-size: 1.05rem; line-height: 1.8; text-align: justify; color: rgba(255,255,255,0.9); text-shadow: 0 2px 8px rgba(0,0,0,0.9);">
+                <div id="brandDescText" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; transition: all 0.3s ease;">
+                    {{ brand.description|linebreaksbr }}
+                </div>
+                <button onclick="document.getElementById('brandDescText').style.webkitLineClamp = 'unset'; this.style.display='none';" class="btn btn-link p-0 mt-2 text-decoration-none fw-bold" style="color: #fce38a; font-size: 0.95rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Xem thêm <i class="bi bi-chevron-down ms-1"></i></button>
+            </div>
+            
+        </div>
+        
+        <!-- Cột Phải: Slider Thumbnails (50%) -->
+        <div class="col-lg-7 p-0 position-relative d-flex flex-column justify-content-end pb-4 pb-lg-5 hero-slider-col">
+            <!-- Thumbnails của các Hạng phòng (Cuộn ngang) -->
+            <div class="position-absolute bottom-0 start-0 w-100 p-3 p-lg-4 pb-lg-5">
+                <h5 class="text-white fw-bold mb-3 ms-2" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Khám phá các hạng phòng</h5>
+                <div class="d-flex gap-3 overflow-auto custom-scrollbar pb-2 px-2" style="scroll-snap-type: x mandatory;">
+                    
+                    <!-- Mặc định có ảnh Brand Banner -->
+                    <div class="hero-thumb-card active position-relative shadow" onclick="changeHeroImage(this, '{{ brand.banner.url }}', null)" style="min-width: 140px; height: 90px; border-radius: 12px; overflow: hidden; cursor: pointer; scroll-snap-align: start;">
+                        <img src="{{ brand.banner.url }}" class="w-100 h-100" style="object-fit: cover;">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-2" style="background: linear-gradient(transparent, rgba(0,0,0,0.9));">
+                            <span class="text-white small fw-bold">Tổng quan</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Loop qua tất cả các phòng của tất cả cơ sở để làm Slider -->
+                    {% for prop in properties %}
+                        {% for room in prop.room_categories.all %}
+                            {% if room.cover_image %}
+                            <div class="hero-thumb-card position-relative shadow" onclick="changeHeroImage(this, '{{ room.cover_image.url }}', '{{ room.id }}')" style="min-width: 150px; height: 90px; border-radius: 12px; overflow: hidden; cursor: pointer; scroll-snap-align: start; transition: all 0.3s ease;">
+                                <img src="{{ room.cover_image.url }}" class="w-100 h-100" style="object-fit: cover;">
+                                <div class="position-absolute bottom-0 start-0 w-100 p-2" style="background: linear-gradient(transparent, rgba(0,0,0,0.9));">
+                                    <span class="text-white small fw-bold d-block text-truncate" style="text-shadow: 0 1px 2px rgba(0,0,0,0.8);">{{ room.name }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+    
+    .hero-slider-col {
+        height: 65vh;
+        min-height: 500px;
+    }
+    @media (max-width: 991px) {
+        .hero-slider-col {
+            height: 50vh;
+            min-height: 350px;
+        }
+        .hero-slider-col img, .hero-slider-col .position-absolute {
+            border-bottom-left-radius: 0 !important;
+        }
+        .hero-slider-col .px-lg-5 {
+            min-height: auto !important;
+            padding-top: 3rem !important;
+            padding-bottom: 3rem !important;
+        }
+    }
+    
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+    }
+    
+    /* Scrollbar cho Thumbnails */
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.2);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.7);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #d4af37;
+    }
+    
+    /* Thumbnail Card */
+    .hero-thumb-card {
+        border: 2px solid transparent;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .hero-thumb-card.active {
+        border-color: #d4af37 !important;
+        transform: translateY(-6px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5) !important;
+    }
+    .hero-thumb-card:hover:not(.active) {
+        transform: translateY(-3px);
+        border-color: rgba(255,255,255,0.6);
+    }
+    
+    /* Class dùng để nhá viền cho phòng khi ấn từ slider */
+    .highlight-room-pulse {
+        animation: pulse-gold 2.5s ease-out;
+    }
+    @keyframes pulse-gold {
+        0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); border-color: #d4af37; transform: translateY(-10px); }
+        50% { box-shadow: 0 0 0 30px rgba(212, 175, 55, 0); border-color: #d4af37; transform: translateY(-10px); }
+        100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+    }
+
+    /* Adaptive Luxury Colors */
+    /* Luxury Sub Tabs */
+    .luxury-sub-tab { color: var(--bs-secondary-color); background: transparent; transition: all 0.3s ease; }
+    .luxury-sub-tab:hover { color: #d4af37; background: rgba(212, 175, 55, 0.1); }
+    .luxury-sub-tab.active { background: #d4af37 !important; color: #fff !important; box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4); }
+    color: #d4af37 !important; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
+
+    /* Room Title Hover */
+    .room-title-hover { transition: color 0.3s ease; }
+    .luxury-room-card:hover .room-title-hover { color: #d4af37 !important; }
+    
+
+    
+    
+
+    
+    .border-luxury-gold { border-left-color: #d4af37 !important; }
+    .luxury-badge { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff !important; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.2); font-weight: 800; box-shadow: 0 4px 10px rgba(231,76,60,0.4) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+    
+    
+    
+    
+    
+
+
+    .price-luxury-card {
+        background: linear-gradient(135deg, rgba(20, 24, 30, 0.95), rgba(15, 15, 15, 0.98));
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        border-left: 3px solid #d4af37;
+        box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.05), 0 5px 15px rgba(0,0,0,0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .luxury-room-card:hover .price-luxury-card {
+        border-color: rgba(212, 175, 55, 0.5);
+        box-shadow: inset 0 0 30px rgba(212, 175, 55, 0.1), 0 8px 20px rgba(0,0,0,0.4);
+    }
+    .price-shine {
+        position: absolute;
+        top: 0; left: -100%; width: 50%; height: 100%;
+        background: linear-gradient(to right, transparent, rgba(212,175,55,0.1), transparent);
+        transform: skewX(-25deg);
+        animation: shine 5s infinite;
+    }
+    @keyframes shine {
+        0% { left: -100%; }
+        20% { left: 200%; }
+        100% { left: 200%; }
+    }
+
+    .brand-selector-btn {
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        padding: 6px 16px;
+        border-radius: 30px;
+        color: #d4af37 !important;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: inline-block;
+        margin-left: 6px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    .brand-selector-btn:hover {
+        background: rgba(212, 175, 55, 0.25);
+        border-color: rgba(212, 175, 55, 0.6);
+        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.25);
+        transform: translateY(-2px);
+    }
+    .brand-selector-btn::after {
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+    .breadcrumb-item + .breadcrumb-item::before {
+        vertical-align: middle;
+        padding-top: 4px;
+    }
+</style>
+
+<script>
+    // Tự động chuyển slide mỗi 5 giây
+    let autoSlideInterval;
+    
+    function scrollThumbnailToCenter(element) {
+        const container = element.closest('.custom-scrollbar');
+        if (container) {
+            // Tính toán vị trí cuộn ngang để căn giữa thumbnail
+            const scrollPos = element.offsetLeft - (container.offsetWidth / 2) + (element.offsetWidth / 2);
+            // Chỉ cuộn vùng chứa ảnh thu nhỏ (ngang), không cuộn cả trang dọc (window)
+            container.scrollTo({ left: scrollPos, behavior: 'smooth' });
+        }
+    }
+    
+    function changeHeroImage(element, imgUrl, roomId) {
+        // Đổi ảnh to
+        const mainImg = document.getElementById('mainHeroImage');
+        mainImg.style.opacity = '0.3';
+        setTimeout(() => {
+            mainImg.src = imgUrl;
+            mainImg.style.opacity = '1';
+        }, 300);
+        
+        // Đổi trạng thái active của thumbnail
+        document.querySelectorAll('.hero-thumb-card').forEach(card => card.classList.remove('active'));
+        element.classList.add('active');
+        
+        // Chỉ cuộn nhẹ thanh ngang của thumbnail
+        scrollThumbnailToCenter(element);
+        
+        // Nếu người dùng chủ động click vào ảnh (có roomId), thì cuộn trang dọc xuống phần thông tin phòng
+        if (roomId) {
+            const roomCard = document.getElementById('room-card-' + roomId);
+            if (roomCard) {
+                // Kích hoạt tab chứa phòng này nếu nó đang ẩn
+                const tabPane = roomCard.closest('.tab-pane');
+                if (tabPane && !tabPane.classList.contains('active')) {
+                    const tabId = tabPane.id;
+                    const tabBtn = document.querySelector(`[data-bs-target="#${tabId}"]`);
+                    if (tabBtn) tabBtn.click();
+                }
+                
+                // Đợi load xong tab rồi mới cuộn trang dọc xuống
+                setTimeout(() => {
+                    roomCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Thêm class hover nổi bật
+                    roomCard.classList.add('highlight-room-pulse');
+                    setTimeout(() => {
+                        roomCard.classList.remove('highlight-room-pulse');
+                    }, 2500);
+                }, 300);
+            }
+        }
+        
+        // Reset thời gian tự động trượt khi người dùng tự bấm
+        resetAutoSlide();
+    }
+    
+    function autoSlideNext() {
+        const currentActive = document.querySelector('.hero-thumb-card.active');
+        if (!currentActive) return;
+        
+        let nextEl = currentActive.nextElementSibling;
+        if (!nextEl) {
+            // Quay lại đầu tiên
+            nextEl = document.querySelector('.hero-thumb-card:first-child');
+        }
+        
+        // Lấy URL ảnh của phần tử tiếp theo
+        const imgUrl = nextEl.querySelector('img').src;
+        
+        // Đổi ảnh to
+        const mainImg = document.getElementById('mainHeroImage');
+        mainImg.style.opacity = '0.3';
+        setTimeout(() => {
+            mainImg.src = imgUrl;
+            mainImg.style.opacity = '1';
+        }, 300);
+        
+        // Cập nhật trạng thái thumbnail
+        document.querySelectorAll('.hero-thumb-card').forEach(card => card.classList.remove('active'));
+        nextEl.classList.add('active');
+        
+        // Tuyệt đối không dùng nextEl.scrollIntoView() vì nó sẽ kéo cả trang dọc của người dùng
+        // Chỉ cuộn ngang thanh thumbnail
+        scrollThumbnailToCenter(nextEl);
+    }
+    
+    function resetAutoSlide() {
+        clearInterval(autoSlideInterval);
+        autoSlideInterval = setInterval(autoSlideNext, 5000); // 5 giây đổi ảnh 1 lần
+    }
+    
+    // Khởi động trượt tự động
+    document.addEventListener("DOMContentLoaded", function() {
+        resetAutoSlide();
+    });
+</script>
+{% else %}
+<div class="container pt-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-secondary text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item active dropdown" aria-current="page">
+            <a class="text-decoration-none dropdown-toggle brand-selector-btn fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ brand.name }}
+            </a>
+            <ul class="dropdown-menu shadow border-0 mt-2 rounded-4">
+                {% for b in all_brands %}
+                    {% if b.id != brand.id %}
+                    <li><a class="dropdown-item fw-semibold py-2" href="{% url 'brand_detail' slug=b.slug %}">{{ b.name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </li>
+        </ol>
+    </nav>
+    <h1 class="display-4 fw-bold mb-4" style="letter-spacing: 1px; color: {{ brand.primary_color|default:'#000' }};">{{ brand.name }}</h1>
+    <div class="mb-5 text-secondary mx-auto" style="max-width: 900px; font-size: 1.1rem; line-height: 1.8; text-align: justify; text-justify: inter-word;">
+        {{ brand.description|linebreaksbr }}
+    </div>
+</div>
+{% endif %}
+
+<div class="container py-5">
+    <!-- Nav Tabs cho Các Cơ sở -->
+
+    {% if properties %}
+    <ul class="nav nav-pills justify-content-center mb-5" id="propertyTabs" role="tablist">
+        {% for prop in properties %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if forloop.first %}active{% endif %} rounded-pill px-4 mx-2 fw-semibold shadow-sm" 
+                    id="tab-{{ prop.id }}" 
+                    data-bs-toggle="pill" 
+                    data-bs-target="#content-{{ prop.id }}" 
+                    type="button" role="tab" 
+                    style="{% if forloop.first %}background-color: {{ brand.primary_color|default:'#000' }}; color: white;{% else %}color: #555; background-color: white;{% endif %}"
+                    onclick="changeTabColor(this, '{{ brand.primary_color|default:'#000' }}')">
+                {{ prop.name }}
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Nội dung Tabs -->
+    <div class="tab-content" id="propertyTabsContent">
+        {% for prop in properties %}
+        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="content-{{ prop.id }}" role="tabpanel">
+            
+            
+            
+            <!-- Danh sách Hạng phòng (Di chuyển LÊN TRÊN) -->
+            <div class="row g-4 mb-5">
+                {% for room in prop.room_categories.all %}
+                <div class="col-md-6 col-lg-4">
+                    <div id="room-card-{{ room.id }}" class="card h-100 shadow-sm border-0 luxury-room-card rounded-4 overflow-hidden position-relative bg-body">
+                        <!-- Badge Sale -->
+                        {% if room.sale_price %}
+                            <span class="badge position-absolute top-0 start-0 m-3 px-3 py-2 fs-6 shadow z-3 luxury-badge">Ưu Đãi Đặc Quyền</span>
+                        {% endif %}
+                        
+                        {% if room.cover_image %}
+                        <img src="{{ room.cover_image.url }}" class="card-img-top" alt="{{ room.name }}" style="height: 250px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <span class="text-secondary">Chưa có ảnh</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="card-body p-4">
+                            <h4 class="card-title fw-bold room-title-hover" style="color: var(--bs-heading-color);">{{ room.name }}</h4>
+
+                            
+                            <!-- Hiện thị giá (Luxury Style) -->
+                            <div class="mb-4 p-3 rounded-3 position-relative overflow-hidden price-luxury-card">
+                                {% if room.sale_price %}
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span class="badge bg-danger rounded-pill px-2 py-1 me-2" style="font-size: 0.65rem; letter-spacing: 1px;">HOT</span>
+                                        <p class="text-decoration-line-through mb-0" style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Giá gốc: {{ room.display_original_price|vnd }} ₫</p>
+                                    </div>
+                                    <h4 class="fw-bold mb-0" style="font-family: 'Playfair Display', serif;">
+                                        <span class="text-luxury-sale" style="color: #fce38a; text-shadow: 0 0 15px rgba(252, 227, 138, 0.4);">{{ room.display_price|vnd }} ₫</span>
+                                        <span class="fs-6 fw-normal" style="color: rgba(255,255,255,0.6); font-family: 'Segoe UI', sans-serif;">/đêm</span>
+                                    </h4>
+                                {% else %}
+                                    <p class="mb-1" style="color: rgba(255,255,255,0.6); font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase;">Giá tham khảo</p>
+                                    <h4 class="fw-bold mb-0" style="font-family: 'Playfair Display', serif;">
+                                        <span class="text-luxury-gold" style="color: #d4af37; text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);">{{ room.display_price|vnd }} ₫</span>
+                                        <span class="fs-6 fw-normal" style="color: rgba(255,255,255,0.6); font-family: 'Segoe UI', sans-serif;">/đêm</span>
+                                    </h4>
+                                {% endif %}
+                                
+                                {% if room.is_weekend_now and room.weekend_surcharge > 0 %}
+                                    <div class="mt-2 pt-2" style="border-top: 1px solid rgba(212, 175, 55, 0.15);">
+                                        <p class="mb-0" style="font-size: 0.75rem; font-style: italic; color: #d4af37;"><i class="bi bi-info-circle me-1"></i>* Đã bao gồm phụ thu cuối tuần</p>
+                                    </div>
+                                {% endif %}
+                                <div class="price-shine"></div>
+                            </div>
+                            <p class="card-text small" style="color: var(--bs-secondary-color);">{{ room.description|linebreaksbr|truncatewords:20 }}</p>
+                        </div>
+                        <div class="card-footer bg-body border-0 p-4 pt-0">
+                            <a href="{% url 'room_detail' room.pk %}" class="btn luxury-outline-btn w-100 fw-bold rounded-pill shadow-sm">Chi tiết hạng phòng</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-secondary">Đang cập nhật hạng phòng...</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+
+            <!-- Dữ liệu Background ẩn -->
+            <div id="bg-data-{{ prop.id }}" class="d-none">{% if prop.background_image %}{{ prop.background_image.url }}{% endif %}</div>
+            <!-- Dữ liệu ẩn để đẩy xuống Footer -->
+            <div id="footer-data-{{ prop.id }}" class="d-none">
+                <div class="row justify-content-between align-items-center">
+                    
+                    <!-- Thông tin liên hệ (Bên trái) -->
+                    <div class="col-md-5 text-center text-md-start mb-5 mb-md-0">
+                        <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-3 d-inline-block">Cơ sở {{ prop.name }}</h4>
+                        
+                        <div class="mb-3">
+                            <span class="text-secondary small text-uppercase fw-bold d-block mb-1">📍 Địa chỉ</span>
+                            <span class="fs-6 fw-semibold text-white">{{ prop.address }}</span>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            {% if prop.hotline %}
+                            <div class="col-6">
+                                <span class="text-secondary small text-uppercase fw-bold d-block mb-1">📞 Hotline</span>
+                                <a href="tel:{{ prop.hotline }}" class="text-decoration-none fs-6 fw-semibold text-white">{{ prop.hotline }}</a>
+                            </div>
+                            {% endif %}
+                            
+                            {% if prop.email %}
+                            <div class="col-6">
+                                <span class="text-secondary small text-uppercase fw-bold d-block mb-1">✉️ Email</span>
+                                <a href="mailto:{{ prop.email }}" class="text-decoration-none fs-6 fw-semibold text-white text-break">{{ prop.email }}</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if prop.facebook_link %}
+                        <div>
+                            <span class="text-secondary small text-uppercase fw-bold d-block mb-1">💬 CSKH</span>
+                            <a href="{{ prop.facebook_link }}" target="_blank" class="text-decoration-none fs-6 fw-semibold" style="color: #4dabf7;">Nhắn tin Facebook</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Bản đồ (Bên phải) -->
+                    <div class="col-md-6">
+                        {% if prop.google_maps_iframe %}
+                        <div class="rounded-4 overflow-hidden shadow-lg map-responsive border border-secondary">
+                            {{ prop.google_maps_iframe|safe }}
+                        </div>
+                        <style>
+                            .map-responsive iframe { width: 100% !important; height: 260px !important; display: block; border: none !important; }
+                        </style>
+                        {% endif %}
+                    </div>
+                    
+                </div>
+            </div>
+            
+        </div>
+        {% endfor %}
+                </div>
+            </div>
+            {% else %}
+    <div class="alert alert-warning text-center">Đang cập nhật cơ sở.</div>
+    {% endif %}
+</div>
+<!-- KHU VỰC TIỆN ÍCH & DỊCH VỤ -->
+<div class="container my-5 pt-5 border-top">
+    <div class="text-center mb-5">
+        <h6 class="text-uppercase fw-bold" style="color: #d4af37; letter-spacing: 2px;" style="letter-spacing: 2px;">Dịch vụ Đặc quyền</h6>
+        <h2 class="display-5 fw-bold mb-3" style="color: var(--bs-heading-color);">Tiện ích miễn phí tại {{ brand.name }}</h2>
+        <p class="mx-auto fs-5" style="color: var(--bs-secondary-color); opacity: 0.9;" style="max-width: 800px;">Trải nghiệm sự hoàn hảo trong từng chi tiết với những đặc quyền dành riêng cho khách lưu trú.</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <!-- Ẩm thực -->
+        <div class="col-md-6 col-lg-4">
+            <div class="p-4 bg-body-tertiary rounded-4 h-100 shadow-sm border text-center transition-hover">
+                <div class="mb-3">
+                    <i class="bi bi-cup-hot-fill fs-1" class="text-luxury-gold"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Ẩm Thực Tinh Tế</h4>
+                <p class="mb-0 mt-2" style="color: var(--bs-secondary-color); font-size: 0.95rem; line-height: 1.8;">
+                    {% if 'ambergris' in brand.slug %}
+                    Bữa sáng chọn món (A-la-carte), Welcome drink & Trái cây tươi. Đặc quyền giảm 10% tại quầy Cà phê.
+                    {% else %}
+                    Thức uống Welcome drink & Trái cây tươi chào mừng. Đặc quyền giảm 10% tại quầy Cà phê.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <!-- Giải trí -->
+        <div class="col-md-6 col-lg-4">
+            <div class="p-4 bg-body-tertiary rounded-4 h-100 shadow-sm border text-center transition-hover">
+                <div class="mb-3">
+                    <i class="bi bi-film fs-1" class="text-luxury-gold"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Giải Trí Độc Bản</h4>
+                <p class="mb-0 mt-2" style="color: var(--bs-secondary-color); font-size: 0.95rem; line-height: 1.8;">Rạp phim riêng tại phòng. Thư giãn tại Coffee bar ban ngày & Hidden Cinebar cực "chill" về đêm.</p>
+            </div>
+        </div>
+        <!-- Phục vụ 24/7 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="p-4 bg-body-tertiary rounded-4 h-100 shadow-sm border text-center transition-hover">
+                <div class="mb-3">
+                    <i class="bi bi-bell-fill fs-1" class="text-luxury-gold"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Phục Vụ 24/7</h4>
+                <p class="mb-0 mt-2" style="color: var(--bs-secondary-color); font-size: 0.95rem; line-height: 1.8;">Room Service chuyên nghiệp. Hỗ trợ dọn phòng tỉ mỉ hàng ngày (áp dụng cho khách lưu trú từ 2 đêm).</p>
+            </div>
+        </div>
+        <!-- Kết nối -->
+        <div class="col-md-6 col-lg-4">
+            <div class="p-4 bg-body-tertiary rounded-4 h-100 shadow-sm border text-center transition-hover">
+                <div class="mb-3">
+                    <i class="bi bi-wifi fs-1" class="text-luxury-gold"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Kết Nối & Di Chuyển</h4>
+                <p class="mb-0 mt-2" style="color: var(--bs-secondary-color); font-size: 0.95rem; line-height: 1.8;">Truy cập Wi-Fi tốc độ cao hoàn toàn miễn phí. Có khu vực đỗ xe an ninh, thuận tiện dành cho khách hàng.</p>
+            </div>
+        </div>
+        <!-- Tiện nghi phòng -->
+        <div class="col-md-6 col-lg-4">
+            <div class="p-4 bg-body-tertiary rounded-4 h-100 shadow-sm border text-center transition-hover">
+                <div class="mb-3">
+                    <i class="bi bi-snow fs-1" class="text-luxury-gold"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Tiện Nghi Căn Bản</h4>
+                <p class="mb-0 mt-2" style="color: var(--bs-secondary-color); font-size: 0.95rem; line-height: 1.8;">Trang bị điều hòa, tủ lạnh mini, ấm đun siêu tốc, cùng trà, cà phê và nước suối miễn phí mỗi ngày.</p>
+            </div>
+        </div>
+        <!-- Chăm sóc cá nhân -->
+        <div class="col-md-6 col-lg-4">
+            <div class="p-4 bg-body-tertiary rounded-4 h-100 shadow-sm border text-center transition-hover">
+                <div class="mb-3">
+                    <i class="bi bi-bag-heart-fill fs-1" class="text-luxury-gold"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Chăm Sóc Cá Nhân</h4>
+                <p class="mb-0 mt-2" style="color: var(--bs-secondary-color); font-size: 0.95rem; line-height: 1.8;">Bộ vật dụng cao cấp: Khăn tắm, khăn mặt mềm mại, máy sấy tóc, bàn ủi và trọn bộ mỹ phẩm phòng tắm.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CHÍNH SÁCH & FAQ SECTION GLOBAL -->
+<div class="container my-5 pt-5 border-top FAQ-section-luxury">
+    <div class="text-center mb-5">
+        <h6 class="text-uppercase fw-bold" style="color: #d4af37; letter-spacing: 2px;">Thông tin cần biết</h6>
+        <h2 class="display-5 fw-bold mb-3" style="color: var(--bs-heading-color);">Chính sách & FAQ</h2>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            {% if brand.faqs.all %}
+            <div class="faq-scroll-container pe-2" style="max-height: 550px; overflow-y: auto;">
+                <div class="accordion" id="accordionBrandFaq">
+                {% for faq in brand.faqs.all %}
+                <div class="accordion-item mb-3 border-0 rounded-4 overflow-hidden" style="background: var(--bs-body-bg); box-shadow: 0 8px 20px rgba(0,0,0,0.08); transition: all 0.3s ease;">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed fw-bold py-4 px-4 fs-6 bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-{{ faq.id }}" style="color: var(--bs-heading-color); box-shadow: none;">
+                            <span style="border-left: 3px solid #d4af37; padding-left: 15px;">{{ faq.question }}</span>
+                        </button>
+                    </h2>
+                    <div id="faq-collapse-{{ faq.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionBrandFaq">
+                        <div class="accordion-body pt-0 pb-4 px-4" style="line-height: 1.8;">
+                            <div class="p-3 rounded-3" style="background: rgba(var(--bs-body-color-rgb), 0.03); border: 1px solid rgba(var(--bs-body-color-rgb), 0.05); color: var(--bs-body-color); opacity: 0.9;">
+                                {{ faq.answer|linebreaksbr }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-5 text-secondary">
+                <i class="bi bi-info-circle fs-1 d-block mb-3"></i>
+                <p>Đang cập nhật thông tin chính sách...</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling cho FAQ */
+    /* Khung cuộn FAQ */
+    .faq-scroll-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    .faq-scroll-container::-webkit-scrollbar-track {
+        background: rgba(var(--bs-body-color-rgb), 0.05);
+        border-radius: 10px;
+    }
+    .faq-scroll-container::-webkit-scrollbar-thumb {
+        background: rgba(212, 175, 55, 0.4);
+        border-radius: 10px;
+    }
+    .faq-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: rgba(212, 175, 55, 0.8);
+    }
+
+    #accordionBrandFaq .accordion-item {
+        border-radius: 1rem !important; /* Đảm bảo bo tròn hoàn toàn */
+    }
+    #accordionBrandFaq .accordion-button {
+        border-radius: 1rem !important;
+    }
+    #accordionBrandFaq .accordion-button:not(.collapsed) {
+        background-color: transparent;
+        color: #d4af37 !important;
+    }
+    #accordionBrandFaq .accordion-button:not(.collapsed)::after {
+        filter: invert(72%) sepia(50%) saturate(717%) hue-rotate(3deg) brightness(97%) contrast(85%); /* Đổi màu mũi tên sang vàng */
+    }
+    #accordionBrandFaq .accordion-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .transition-hover { 
+        transition: all 0.4s ease; 
+        border: 1px solid rgba(0,0,0,0.05) !important;
+        position: relative;
+        overflow: hidden;
+        cursor: default;
+    }
+    .transition-hover i {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: inline-block;
+    }
+    .transition-hover:hover { 
+        transform: translateY(-8px); 
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important; 
+        border-color: rgba(212, 175, 55, 0.4) !important;
+    }
+    
+    .transition-hover:hover {
+        background-color: #24292F !important; /* Màu nền tối đặc (solid) để không bị lộ ảnh phía sau */
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important; 
+    }
+    .transition-hover:hover p {
+        color: #f8f9fa !important; /* Làm chữ phụ sáng lên cho dễ đọc */
+    }
+    .transition-hover:hover h4 {
+        color: #d4af37 !important;
+    }
+    .transition-hover:hover i {
+        color: #d4af37 !important; /* Đổi sang màu vàng Luxury */
+        text-shadow: 0 8px 20px rgba(212, 175, 55, 0.5);
+        transform: scale(1.15);
+    }
+    /* Thanh viền sáng lướt qua ở trên cùng */
+    .transition-hover::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 3px;
+        background: linear-gradient(90deg, transparent, #d4af37, transparent);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    .transition-hover:hover::after {
+        opacity: 1;
+    }
+</style>
+
+<!-- Script hỗ trợ đổi màu Tab mượt mà -->
+
+
+<script>
+function changeTabColor(activeBtn, color) {
+    document.querySelectorAll('#propertyTabs .nav-link').forEach(btn => {
+        btn.style.backgroundColor = 'white';
+        btn.style.color = '#555';
+    });
+    activeBtn.style.backgroundColor = color;
+    activeBtn.style.color = 'white';
+    
+    // Đẩy dữ liệu của tab hiện tại xuống Footer màu đen
+    let propId = activeBtn.id.replace('tab-', '');
+    let footerData = document.getElementById('footer-data-' + propId);
+    if(footerData) {
+        document.getElementById('dynamic-property-footer').innerHTML = footerData.innerHTML;
+
+        // Tự động đổi ảnh nền toàn trang khi bấm chuyển Cơ sở
+        let bgData = document.getElementById('bg-data-' + propId);
+        if(bgData && bgData.textContent.trim() !== '') {
+            // Sử dụng lớp phủ (overlay) nhẹ để đảm bảo chữ vẫn dễ đọc trên nền ảnh
+            let overlay = 'rgba(0,0,0,0.7)';
+            
+            document.body.style.backgroundImage = `linear-gradient(${overlay}, ${overlay}), url('${bgData.textContent.trim()}')`;
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundAttachment = "fixed";
+            document.body.style.backgroundPosition = "center";
+            document.body.style.transition = "background-image 0.5s ease";
+        } else {
+            document.body.style.backgroundImage = "none";
+        }
+    
+    }
+}
+
+// Chạy lần đầu khi load trang
+document.addEventListener("DOMContentLoaded", function() {
+    let firstTab = document.querySelector('#propertyTabs .nav-link.active');
+    if(firstTab) {
+        let propId = firstTab.id.replace('tab-', '');
+        let footerData = document.getElementById('footer-data-' + propId);
+        if(footerData) {
+            document.getElementById('dynamic-property-footer').innerHTML = footerData.innerHTML;
+
+        // Tự động đổi ảnh nền toàn trang khi bấm chuyển Cơ sở
+        let bgData = document.getElementById('bg-data-' + propId);
+        if(bgData && bgData.textContent.trim() !== '') {
+            // Sử dụng lớp phủ (overlay) nhẹ để đảm bảo chữ vẫn dễ đọc trên nền ảnh
+            let overlay = 'rgba(0,0,0,0.7)';
+            
+            document.body.style.backgroundImage = `linear-gradient(${overlay}, ${overlay}), url('${bgData.textContent.trim()}')`;
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundAttachment = "fixed";
+            document.body.style.backgroundPosition = "center";
+            document.body.style.transition = "background-image 0.5s ease";
+        } else {
+            document.body.style.backgroundImage = "none";
+        }
+    
+        }
+    }
+});
+</script>
+
+<style>
+    .luxury-outline-btn {
+        border: 1px solid #d4af37 !important;
+        color: #d4af37 !important;
+        background-color: transparent !important;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    .luxury-outline-btn::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 0; height: 100%;
+        background-color: #d4af37;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        z-index: -1;
+    }
+    .luxury-outline-btn:hover {
+        color: #1a1a1a !important; /* Chữ màu đen khi hover nền vàng */
+        box-shadow: 0 10px 20px rgba(212, 175, 55, 0.4) !important;
+    }
+    .luxury-outline-btn:hover::before {
+        width: 100%;
+    }
+</style>
+
+
+<style>
+    .luxury-room-card {
+        transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        border: 1px solid rgba(212, 175, 55, 0) !important;
+    }
+    .luxury-room-card .card-img-top {
+        transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .luxury-room-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+        border-color: rgba(212, 175, 55, 0.3) !important;
+    }
+    .luxury-room-card:hover .card-img-top {
+        transform: scale(1.08);
+    }
+</style>
+
+{% endblock %}
