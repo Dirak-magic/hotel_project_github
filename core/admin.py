@@ -132,3 +132,17 @@ class SiteSettingAdmin(admin.ModelAdmin):
         if SiteSetting.objects.exists():
             return False
         return True
+
+# Tùy chỉnh lại giao diện OTP TOTP Device để dễ dùng hơn (biến ô nhập User thành Dropdown)
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from django_otp.plugins.otp_totp.admin import TOTPDeviceAdmin
+
+try:
+    admin.site.unregister(TOTPDevice)
+except Exception:
+    pass
+
+class CustomTOTPDeviceAdmin(TOTPDeviceAdmin):
+    raw_id_fields = ()  # Tắt cái kính lúp đi để biến thành Dropdown chọn tài khoản
+
+admin.site.register(TOTPDevice, CustomTOTPDeviceAdmin)

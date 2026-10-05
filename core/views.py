@@ -5,6 +5,7 @@ import gspread
 from django.http import JsonResponse
 from django.core.cache import cache
 import datetime
+from django_ratelimit.decorators import ratelimit
 
 def home(request):
     brands = Brand.objects.all()
@@ -22,7 +23,11 @@ def room_detail(request, pk):
     all_brands = Brand.objects.all()
     return render(request, 'room_detail.html', {'room': room, 'prop': room.property, 'all_brands': all_brands})
 
+@ratelimit(key='ip', rate='20/m', block=False)
 def check_availability(request, pk):
+    if getattr(request, 'limited', False):
+        return JsonResponse({'error': 'Bạn đã tra cứu quá nhiều lần. Vui lòng thử lại sau 1 phút.'}, status=429)
+
     room = get_object_or_404(RoomCategory, pk=pk)
     prop = room.property
     
