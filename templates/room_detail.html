@@ -2,7 +2,7 @@
 {% load vnd_format %}
 
 {% block content %}
-<div class="container py-5" style="margin-top: 60px;">
+<div class="container pb-5" style="padding-top: 130px;">
     
     <!-- Nút Quay lại & Breadcrumb -->
     <div class="d-flex align-items-center mb-4">
@@ -331,6 +331,12 @@
         border: 1px solid rgba(212, 175, 55, 0.15);
         border-left: 5px solid #d4af37;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(212, 175, 55, 0.05);
+        transition: all 0.4s ease;
+    }
+    [data-bs-theme="dark"] .luxury-box:hover {
+        box-shadow: 0 15px 35px rgba(212, 175, 55, 0.25), inset 0 1px 0 rgba(212, 175, 55, 0.3);
+        transform: translateY(-5px);
+        border-color: rgba(212, 175, 55, 0.4);
     }
     [data-bs-theme="dark"] .luxury-box .text-body {
         color: #e4e0d9 !important;
@@ -347,7 +353,11 @@
         transition: all 0.3s ease;
     }
     .luxury-tabs .nav-link:hover {
-        background: rgba(212, 175, 55, 0.05);
+        background: rgba(212, 175, 55, 0.15) !important;
+        color: #fce38a !important;
+        border-color: #d4af37 !important;
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        transform: translateY(-2px);
     }
     .luxury-tabs .nav-link.active {
         background: #d4af37;
