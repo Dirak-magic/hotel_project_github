@@ -366,7 +366,7 @@
 {% endif %}
 
 <div class="container py-5">
-    <!-- Nav Tabs cho Các Cơ sở -->
+    <!-- Nav Tabs cho Các Chi nhánh -->
 
     {% if properties %}
     <ul class="nav nav-pills justify-content-center mb-5 gap-3" id="propertyTabs" role="tablist">
@@ -389,9 +389,7 @@
     <div class="tab-content" id="propertyTabsContent">
         {% for prop in properties %}
         <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="content-{{ prop.id }}" role="tabpanel">
-            
-            
-            
+
             <!-- Danh sách Hạng phòng (Di chuyển LÊN TRÊN) -->
             <div class="row g-4 mb-5">
                 {% for room in prop.room_categories.all %}
@@ -463,7 +461,7 @@
                     
                     <!-- Thông tin liên hệ (Bên trái) -->
                     <div class="col-md-5 text-center text-md-start mb-5 mb-md-0">
-                        <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-3 d-inline-block">Cơ sở {{ prop.name }}</h4>
+                        <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-3 d-inline-block">Chi nhánh {{ prop.name }}</h4>
                         
                         <div class="mb-3">
                             <span class="text-secondary small text-uppercase fw-bold d-block mb-1">📍 Địa chỉ</span>
@@ -514,7 +512,7 @@
                 </div>
             </div>
             {% else %}
-    <div class="alert alert-warning text-center">Đang cập nhật cơ sở.</div>
+    <div class="alert alert-warning text-center">Đang cập nhật chi nhánh.</div>
     {% endif %}
 </div>
 <!-- KHU VỰC TIỆN ÍCH & DỊCH VỤ -->
@@ -607,7 +605,7 @@
             <div class="faq-scroll-container pe-2" style="max-height: 550px; overflow-y: auto;">
                 <div class="accordion" id="accordionBrandFaq">
                 {% for faq in brand.faqs.all %}
-                <div class="accordion-item mb-3 border-0 rounded-4 overflow-hidden" style="background: var(--bs-body-bg); box-shadow: 0 8px 20px rgba(0,0,0,0.08); transition: all 0.3s ease;">
+                <div class="accordion-item mb-3 border-0 rounded-4 overflow-hidden" style="background: var(--bs-tertiary-bg); box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: all 0.3s ease;">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed fw-bold py-4 px-4 fs-6 bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-{{ faq.id }}" style="color: var(--bs-heading-color); box-shadow: none;">
                             <span style="border-left: 3px solid #d4af37; padding-left: 15px;">{{ faq.question }}</span>
@@ -654,9 +652,15 @@
 
     #accordionBrandFaq .accordion-item {
         border-radius: 1rem !important; /* Đảm bảo bo tròn hoàn toàn */
+        border: 1px solid transparent !important;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
     }
     #accordionBrandFaq .accordion-button {
         border-radius: 1rem !important;
+        transition: color 0.3s ease;
+    }
+    #accordionBrandFaq .accordion-button span {
+        transition: all 0.3s ease;
     }
     #accordionBrandFaq .accordion-button:not(.collapsed) {
         background-color: transparent;
@@ -666,8 +670,15 @@
         filter: invert(72%) sepia(50%) saturate(717%) hue-rotate(3deg) brightness(97%) contrast(85%); /* Đổi màu mũi tên sang vàng */
     }
     #accordionBrandFaq .accordion-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 25px rgba(0,0,0,0.15) !important;
+        transform: translateY(-4px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 15px rgba(212, 175, 55, 0.05) !important;
+        border-color: rgba(212, 175, 55, 0.3) !important;
+    }
+    #accordionBrandFaq .accordion-item:hover .accordion-button {
+        color: #d4af37 !important;
+    }
+    #accordionBrandFaq .accordion-item:hover .accordion-button span {
+        border-left-color: #fce38a !important;
     }
 
     .transition-hover { 
@@ -832,3 +843,4 @@ document.addEventListener("DOMContentLoaded", function() {
 </style>
 
 {% endblock %}
+

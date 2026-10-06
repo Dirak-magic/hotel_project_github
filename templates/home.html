@@ -139,68 +139,174 @@
 </script>
 <style>
     .play-btn:hover { transform: scale(1.1); background: #b58c1d !important; }
+
+
+
+    /* LUXURY CAROUSEL CONTROLS & INDICATORS */
+    .luxury-control {
+        width: 8%;
+        opacity: 0.8;
+        transition: all 0.4s ease;
+    }
+    .luxury-control:hover {
+        opacity: 1;
+    }
+    .control-circle {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(15, 15, 15, 0.6);
+        border: 2px solid rgba(212, 175, 55, 0.5); /* Gold border */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #d4af37; /* Gold icon */
+        font-size: 1.8rem;
+        backdrop-filter: blur(5px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    .luxury-control:hover .control-circle {
+        background-color: rgba(212, 175, 55, 0.9);
+        border-color: #fce38a;
+        color: #111;
+        transform: scale(1.15);
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+    }
+
+    .luxury-indicators {
+        bottom: 20px;
+        gap: 12px;
+    }
+    .luxury-indicators [data-bs-target] {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: transparent;
+        border: 2px solid rgba(212, 175, 55, 0.6);
+        opacity: 0.7;
+        transition: all 0.4s ease;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    .luxury-indicators .active {
+        background-color: #d4af37;
+        border-color: #d4af37;
+        transform: scale(1.4);
+        opacity: 1;
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+    }
+    .luxury-indicators [data-bs-target]:hover {
+        opacity: 1;
+        border-color: #fce38a;
+        transform: scale(1.2);
+    }
+
+
+    @media (max-width: 576px) {
+        .luxury-timer-box {
+            width: 70px !important;
+            padding: 1rem 0.2rem !important;
+        }
+        .luxury-timer-box .display-5 {
+            font-size: 1.8rem !important;
+        }
+        .luxury-timer-box .small {
+            font-size: 0.6rem !important;
+            letter-spacing: 1px !important;
+        }
+        .sale-countdown-timer {
+            gap: 0.5rem !important;
+            justify-content: center !important;
+            width: 100%;
+        }
+    }
+
 </style>
 {% endif %}
 
 
-{% if site_setting.sale_active %}
+{% if sale_properties %}
 <!-- BỘ BANNER KHUYẾN MÃI (LUXURY EDITION) -->
-<div class="container-fluid position-relative sale-section p-0" style="background-image: linear-gradient(rgba(15, 15, 15, 0.75), rgba(15, 15, 15, 0.85)), url('{% if site_setting.sale_background %}{{ site_setting.sale_background.url }}{% else %}https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2000&auto=format&fit=crop{% endif %}'); background-size: cover; background-position: center; background-attachment: fixed; box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
-    <div class="container py-5">
-        <div class="row align-items-center justify-content-between my-5">
-            
-            <!-- Cột trái: Nội dung -->
-            <div class="col-lg-6 text-white mb-5 mb-lg-0 pe-lg-5">
-                <div class="mb-4">
-                    <span class="text-uppercase" style="letter-spacing: 4px; color: #d4af37; font-size: 0.85rem; border-bottom: 1px solid #d4af37; padding-bottom: 6px; font-weight: 800; color: #fce38a;">Đặc Quyền Giới Hạn</span>
-                </div>
-                
-                <!-- Font serif sang trọng cho Tiêu đề -->
-                <h2 class="display-4 mb-4" style="color: #ffffff; font-family: 'Playfair Display', serif; letter-spacing: 2px; line-height: 1.3;">{{ site_setting.sale_title }}</h2>
-                
-                <div class="mb-5 text-light" style="line-height: 2; opacity: 0.8; font-size: 1.05rem; font-weight: 300;">
-                    {{ site_setting.sale_description|linebreaksbr }}
-                </div>
-                
-                {% if site_setting.sale_button_link %}
-                <a href="{{ site_setting.sale_button_link }}" target="_blank" class="btn luxury-btn px-5 py-3 text-uppercase fw-semibold" style="letter-spacing: 2px; font-size: 0.85rem; transition: all 0.4s ease;">
-                    {{ site_setting.sale_button_text }}
-                </a>
-                {% endif %}
-            </div>
-            
-            <!-- Cột phải: Đếm ngược -->
-            <div class="col-lg-5">
-                <div class="d-flex flex-wrap justify-content-lg-end gap-3 countdown-wrapper" id="sale-countdown" data-endtime="{{ site_setting.sale_end_date|date:'c' }}">
-                    <!-- Sẽ được điền bằng Javascript bên dưới -->
-                </div>
-            </div>
-            
-        </div>
+<div id="saleCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+    <!-- Indicators (Luxury Edition) -->
+    <div class="carousel-indicators luxury-indicators">
+        {% for prop in sale_properties %}
+        <button type="button" data-bs-target="#saleCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+        {% endfor %}
     </div>
-    
-    <!-- ĐƯA DẢI TIỆN ÍCH VÀO BÊN TRONG SALE SECTION ĐỂ DÙNG CHUNG BACKGROUND -->
 
-    <!-- Dải Icon Tiện Ích Toàn Cầu (Global Amenities Strip) -->
-    <div class="container-fluid py-5 bg-transparent border-0" style="border-top: 1px solid rgba(255,255,255,0.05) !important;">
+    <div class="carousel-inner">
+        {% for prop in sale_properties %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <div class="container-fluid position-relative sale-section p-0" style="background-image: linear-gradient(rgba(15, 15, 15, 0.75), rgba(15, 15, 15, 0.85)), url('{% if prop.sale_background %}{{ prop.sale_background.url }}{% else %}https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2000&auto=format&fit=crop{% endif %}'); background-size: cover; background-position: center; box-shadow: 0 15px 40px rgba(0,0,0,0.6);; min-height: 700px;">
+                <div class="container py-4 d-flex align-items-center h-100">
+                    <div class="row align-items-center justify-content-between my-5 w-100 m-0">
+                        
+                        <!-- Cột trái: Nội dung -->
+                        <div class="col-lg-6 text-white mb-5 mb-lg-0 pe-lg-5">
+                            <div class="mb-4">
+                                <span class="text-uppercase" style="letter-spacing: 4px; color: #d4af37; font-size: 0.85rem; border-bottom: 1px solid #d4af37; padding-bottom: 6px; font-weight: 800; color: #fce38a;">Đặc Quyền Tại {{ prop.name }}</span>
+                            </div>
+                            
+                            <h2 class="display-4 mb-4" style="color: #ffffff; font-family: 'Playfair Display', serif; letter-spacing: 2px; line-height: 1.3;">{{ prop.sale_title }}</h2>
+                            
+                            <div class="mb-5 text-light" style="line-height: 2; opacity: 0.8; font-size: 1.05rem; font-weight: 300; white-space: pre-wrap;">{{ prop.sale_description }}</div>
+                            
+                            {% if prop.sale_button_link %}
+                            <a href="{{ prop.sale_button_link }}" target="_blank" class="btn luxury-btn px-5 py-3 text-uppercase fw-semibold" style="letter-spacing: 2px; font-size: 0.85rem; transition: all 0.4s ease;">
+                                {{ prop.sale_button_text }}
+                            </a>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Cột phải: Đếm ngược -->
+                        <div class="col-lg-5">
+                            <div class="d-flex flex-wrap justify-content-lg-end gap-3 countdown-wrapper sale-countdown-timer" data-endtime="{{ prop.sale_end_date|date:'c' }}">
+                                <!-- Sẽ được điền bằng Javascript -->
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Controls (Luxury Edition) -->
+    {% if sale_properties|length > 1 %}
+    <button class="carousel-control-prev luxury-control d-none d-md-flex" type="button" data-bs-target="#saleCarousel" data-bs-slide="prev">
+        <div class="control-circle">
+            <i class="bi bi-chevron-left"></i>
+        </div>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next luxury-control d-none d-md-flex" type="button" data-bs-target="#saleCarousel" data-bs-slide="next">
+        <div class="control-circle">
+            <i class="bi bi-chevron-right"></i>
+        </div>
+        <span class="visually-hidden">Next</span>
+    </button>
+    {% endif %}
+
+</div>
+    <!-- Dải Icon Tiện Ích Toàn Cầu (Đưa ra khỏi carousel-inner để giữ cố định bên dưới) -->
+    <div class="container-fluid py-5 bg-transparent border-0 position-relative" style="border-top: 1px solid rgba(255,255,255,0.05) !important; margin-top: 0; z-index: 10;">
         <div class="container">
             <div class="row g-4 text-center">
-                <!-- Item 1 -->
                 <div class="col-6 col-md-3 amenity-item">
                     <i class="bi bi-wifi luxury-icon"></i>
                     <h6 class="text-uppercase luxury-text mt-3 mb-0">Free WiFi</h6>
                 </div>
-                <!-- Item 2 -->
                 <div class="col-6 col-md-3 amenity-item">
                     <i class="bi bi-p-circle luxury-icon"></i>
                     <h6 class="text-uppercase luxury-text mt-3 mb-0">Secure Parking</h6>
                 </div>
-                <!-- Item 3 -->
                 <div class="col-6 col-md-3 amenity-item">
                     <i class="bi bi-cup-hot luxury-icon"></i>
                     <h6 class="text-uppercase luxury-text mt-3 mb-0">Coffee & Cinebar</h6>
                 </div>
-                <!-- Item 4 -->
                 <div class="col-6 col-md-3 amenity-item">
                     <i class="bi bi-bell luxury-icon"></i>
                     <h6 class="text-uppercase luxury-text mt-3 mb-0">Room Service</h6>
@@ -208,9 +314,6 @@
             </div>
         </div>
     </div>
-
-    
-</div>
 
 <style>
     .luxury-btn {
@@ -238,6 +341,105 @@
         transform: translateY(-8px);
         box-shadow: 0 15px 30px rgba(0,0,0,0.6);
     }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 3rem;
+        height: 3rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        background-size: 50%;
+    }
+    .carousel-indicators [data-bs-target] {
+        width: 40px;
+        height: 6px;
+        border-radius: 3px;
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+    .carousel-indicators .active {
+        background-color: #d4af37;
+    }
+
+    /* LUXURY CAROUSEL CONTROLS & INDICATORS */
+    .luxury-control {
+        width: 8%;
+        opacity: 0.8;
+        transition: all 0.4s ease;
+    }
+    .luxury-control:hover {
+        opacity: 1;
+    }
+    .control-circle {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(15, 15, 15, 0.6);
+        border: 2px solid rgba(212, 175, 55, 0.5); /* Gold border */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #d4af37; /* Gold icon */
+        font-size: 1.8rem;
+        backdrop-filter: blur(5px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    .luxury-control:hover .control-circle {
+        background-color: rgba(212, 175, 55, 0.9);
+        border-color: #fce38a;
+        color: #111;
+        transform: scale(1.15);
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+    }
+
+    .luxury-indicators {
+        bottom: 20px;
+        gap: 12px;
+    }
+    .luxury-indicators [data-bs-target] {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: transparent;
+        border: 2px solid rgba(212, 175, 55, 0.6);
+        opacity: 0.7;
+        transition: all 0.4s ease;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    .luxury-indicators .active {
+        background-color: #d4af37;
+        border-color: #d4af37;
+        transform: scale(1.4);
+        opacity: 1;
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+    }
+    .luxury-indicators [data-bs-target]:hover {
+        opacity: 1;
+        border-color: #fce38a;
+        transform: scale(1.2);
+    }
+
+
+    @media (max-width: 576px) {
+        .luxury-timer-box {
+            width: 70px !important;
+            padding: 1rem 0.2rem !important;
+        }
+        .luxury-timer-box .display-5 {
+            font-size: 1.8rem !important;
+        }
+        .luxury-timer-box .small {
+            font-size: 0.6rem !important;
+            letter-spacing: 1px !important;
+        }
+        .sale-countdown-timer {
+            gap: 0.5rem !important;
+            justify-content: center !important;
+            width: 100%;
+        }
+    }
+
 </style>
 {% else %}
     <!-- NẾU KHÔNG CÓ SALE SECTION THÌ DẢI TIỆN ÍCH ĐỨNG ĐỘC LẬP -->
@@ -301,6 +503,105 @@
         color: #d4af37;
         text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
     }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 3rem;
+        height: 3rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        background-size: 50%;
+    }
+    .carousel-indicators [data-bs-target] {
+        width: 40px;
+        height: 6px;
+        border-radius: 3px;
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+    .carousel-indicators .active {
+        background-color: #d4af37;
+    }
+
+    /* LUXURY CAROUSEL CONTROLS & INDICATORS */
+    .luxury-control {
+        width: 8%;
+        opacity: 0.8;
+        transition: all 0.4s ease;
+    }
+    .luxury-control:hover {
+        opacity: 1;
+    }
+    .control-circle {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(15, 15, 15, 0.6);
+        border: 2px solid rgba(212, 175, 55, 0.5); /* Gold border */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #d4af37; /* Gold icon */
+        font-size: 1.8rem;
+        backdrop-filter: blur(5px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    .luxury-control:hover .control-circle {
+        background-color: rgba(212, 175, 55, 0.9);
+        border-color: #fce38a;
+        color: #111;
+        transform: scale(1.15);
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+    }
+
+    .luxury-indicators {
+        bottom: 20px;
+        gap: 12px;
+    }
+    .luxury-indicators [data-bs-target] {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: transparent;
+        border: 2px solid rgba(212, 175, 55, 0.6);
+        opacity: 0.7;
+        transition: all 0.4s ease;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    .luxury-indicators .active {
+        background-color: #d4af37;
+        border-color: #d4af37;
+        transform: scale(1.4);
+        opacity: 1;
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+    }
+    .luxury-indicators [data-bs-target]:hover {
+        opacity: 1;
+        border-color: #fce38a;
+        transform: scale(1.2);
+    }
+
+
+    @media (max-width: 576px) {
+        .luxury-timer-box {
+            width: 70px !important;
+            padding: 1rem 0.2rem !important;
+        }
+        .luxury-timer-box .display-5 {
+            font-size: 1.8rem !important;
+        }
+        .luxury-timer-box .small {
+            font-size: 0.6rem !important;
+            letter-spacing: 1px !important;
+        }
+        .sale-countdown-timer {
+            gap: 0.5rem !important;
+            justify-content: center !important;
+            width: 100%;
+        }
+    }
+
 </style>
 
 </div>
@@ -449,6 +750,105 @@
         line-height: 1.7;
         font-weight: 400;
     }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 3rem;
+        height: 3rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        background-size: 50%;
+    }
+    .carousel-indicators [data-bs-target] {
+        width: 40px;
+        height: 6px;
+        border-radius: 3px;
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+    .carousel-indicators .active {
+        background-color: #d4af37;
+    }
+
+    /* LUXURY CAROUSEL CONTROLS & INDICATORS */
+    .luxury-control {
+        width: 8%;
+        opacity: 0.8;
+        transition: all 0.4s ease;
+    }
+    .luxury-control:hover {
+        opacity: 1;
+    }
+    .control-circle {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(15, 15, 15, 0.6);
+        border: 2px solid rgba(212, 175, 55, 0.5); /* Gold border */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #d4af37; /* Gold icon */
+        font-size: 1.8rem;
+        backdrop-filter: blur(5px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    .luxury-control:hover .control-circle {
+        background-color: rgba(212, 175, 55, 0.9);
+        border-color: #fce38a;
+        color: #111;
+        transform: scale(1.15);
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+    }
+
+    .luxury-indicators {
+        bottom: 20px;
+        gap: 12px;
+    }
+    .luxury-indicators [data-bs-target] {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: transparent;
+        border: 2px solid rgba(212, 175, 55, 0.6);
+        opacity: 0.7;
+        transition: all 0.4s ease;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    .luxury-indicators .active {
+        background-color: #d4af37;
+        border-color: #d4af37;
+        transform: scale(1.4);
+        opacity: 1;
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+    }
+    .luxury-indicators [data-bs-target]:hover {
+        opacity: 1;
+        border-color: #fce38a;
+        transform: scale(1.2);
+    }
+
+
+    @media (max-width: 576px) {
+        .luxury-timer-box {
+            width: 70px !important;
+            padding: 1rem 0.2rem !important;
+        }
+        .luxury-timer-box .display-5 {
+            font-size: 1.8rem !important;
+        }
+        .luxury-timer-box .small {
+            font-size: 0.6rem !important;
+            letter-spacing: 1px !important;
+        }
+        .sale-countdown-timer {
+            gap: 0.5rem !important;
+            justify-content: center !important;
+            width: 100%;
+        }
+    }
+
 </style>
 
 
@@ -464,6 +864,105 @@
             transform: translateY(0);
         }
     }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 3rem;
+        height: 3rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        background-size: 50%;
+    }
+    .carousel-indicators [data-bs-target] {
+        width: 40px;
+        height: 6px;
+        border-radius: 3px;
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+    .carousel-indicators .active {
+        background-color: #d4af37;
+    }
+
+    /* LUXURY CAROUSEL CONTROLS & INDICATORS */
+    .luxury-control {
+        width: 8%;
+        opacity: 0.8;
+        transition: all 0.4s ease;
+    }
+    .luxury-control:hover {
+        opacity: 1;
+    }
+    .control-circle {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(15, 15, 15, 0.6);
+        border: 2px solid rgba(212, 175, 55, 0.5); /* Gold border */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #d4af37; /* Gold icon */
+        font-size: 1.8rem;
+        backdrop-filter: blur(5px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    .luxury-control:hover .control-circle {
+        background-color: rgba(212, 175, 55, 0.9);
+        border-color: #fce38a;
+        color: #111;
+        transform: scale(1.15);
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+    }
+
+    .luxury-indicators {
+        bottom: 20px;
+        gap: 12px;
+    }
+    .luxury-indicators [data-bs-target] {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: transparent;
+        border: 2px solid rgba(212, 175, 55, 0.6);
+        opacity: 0.7;
+        transition: all 0.4s ease;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    .luxury-indicators .active {
+        background-color: #d4af37;
+        border-color: #d4af37;
+        transform: scale(1.4);
+        opacity: 1;
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+    }
+    .luxury-indicators [data-bs-target]:hover {
+        opacity: 1;
+        border-color: #fce38a;
+        transform: scale(1.2);
+    }
+
+
+    @media (max-width: 576px) {
+        .luxury-timer-box {
+            width: 70px !important;
+            padding: 1rem 0.2rem !important;
+        }
+        .luxury-timer-box .display-5 {
+            font-size: 1.8rem !important;
+        }
+        .luxury-timer-box .small {
+            font-size: 0.6rem !important;
+            letter-spacing: 1px !important;
+        }
+        .sale-countdown-timer {
+            gap: 0.5rem !important;
+            justify-content: center !important;
+            width: 100%;
+        }
+    }
+
 </style>
 
 
@@ -499,10 +998,65 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <script>
-    // Countdown Timer JS (Restored)
+    
+    // Normalize slide heights to prevent jumping (Robust for hidden items)
+    function normalizeSlideHeights() {
+        let items = document.querySelectorAll('#saleCarousel .carousel-item .sale-section');
+        let maxHeight = 0;
+        
+        // Reset and measure
+        items.forEach(function(item) {
+            item.style.height = 'auto';
+            let parent = item.closest('.carousel-item');
+            
+            // Bootstrap hides non-active items with display:none, making height 0.
+            // We temporarily show them off-screen to measure their true height.
+            let wasHidden = false;
+            if (window.getComputedStyle(parent).display === 'none') {
+                wasHidden = true;
+                parent.style.display = 'block';
+                parent.style.visibility = 'hidden';
+                parent.style.position = 'absolute';
+            }
+            
+            let h = item.offsetHeight;
+            if (h > maxHeight) {
+                maxHeight = h;
+            }
+            
+            // Restore hidden state
+            if (wasHidden) {
+                parent.style.display = '';
+                parent.style.visibility = '';
+                parent.style.position = '';
+            }
+        });
+        
+        // Apply tallest height to all
+        items.forEach(function(item) {
+            item.style.height = maxHeight + 'px';
+        });
+    }
+    
+    window.addEventListener('load', normalizeSlideHeights);
+    window.addEventListener('resize', normalizeSlideHeights);
+
+    // Force start the carousel
     document.addEventListener("DOMContentLoaded", function() {
-        const timerContainer = document.getElementById('sale-countdown');
-        if (timerContainer) {
+        var myCarousel = document.querySelector('#saleCarousel');
+        if (myCarousel) {
+            var carousel = new bootstrap.Carousel(myCarousel, {
+                interval: 4000,
+                ride: 'carousel'
+            });
+            carousel.cycle();
+        }
+    });
+
+    // Countdown Timer JS (Multiple)
+    document.addEventListener("DOMContentLoaded", function() {
+        const timerContainers = document.querySelectorAll('.sale-countdown-timer');
+        timerContainers.forEach(function(timerContainer) {
             const endDateStr = timerContainer.getAttribute('data-endtime');
             if (endDateStr) {
                 const endDate = new Date(endDateStr).getTime();
@@ -542,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     `;
                 }, 1000);
             }
-        }
+        });
     });
 </script>
 

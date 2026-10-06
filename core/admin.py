@@ -23,6 +23,16 @@ class BrandAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'primary_color')
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name',)
+    fieldsets = (
+        ('Thông tin cơ bản', {
+            'fields': ('name', 'slug', 'logo', 'banner', 'primary_color', 'description')
+        }),
+        ('Chương trình Khuyến mãi (Flash Sale)', {
+            'fields': ('sale_active', 'sale_title', 'sale_description', 'sale_end_date', 'sale_background', 'sale_button_text', 'sale_button_link'),
+            'classes': ('collapse',),
+            'description': 'Cấu hình chương trình Khuyến mãi riêng cho cơ sở này.'
+        }),
+    )
 
 @admin.register(Property)
 class PropertyAdmin(admin.ModelAdmin):
@@ -114,7 +124,7 @@ class RoomCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(SiteSetting)
 class SiteSettingAdmin(admin.ModelAdmin):
-    list_display = ('site_name', 'sale_active', 'sale_end_date')
+    list_display = ('site_name',)
     fieldsets = (
         ('Cấu hình chung', {
             'fields': ('site_name', 'footer_text', 'hotline', 'facebook_link', 'homepage_background', 'homepage_background_video')
@@ -122,10 +132,6 @@ class SiteSettingAdmin(admin.ModelAdmin):
         ('Khu vực Video Giới thiệu', {
             'fields': ('promo_video_url', 'promo_video_bg'),
             'description': 'Cấu hình khu vực Video Pop-up (Nút Play Vàng) trên trang chủ.'
-        }),
-        ('Chiến dịch Khuyến Mãi (Flash Sale)', {
-            'fields': ('sale_active', 'sale_title', 'sale_description', 'sale_end_date', 'sale_background', 'sale_button_text', 'sale_button_link'),
-            'description': 'Bật và cấu hình Banner Flash Sale có đồng hồ đếm ngược trên trang chủ.'
         }),
     )
     def has_add_permission(self, request):

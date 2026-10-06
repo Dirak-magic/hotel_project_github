@@ -9,7 +9,8 @@ from django_ratelimit.decorators import ratelimit
 
 def home(request):
     brands = Brand.objects.all()
-    return render(request, 'home.html', {'brands': brands})
+    sale_properties = Brand.objects.filter(sale_active=True)
+    return render(request, 'home.html', {'brands': brands, 'sale_properties': sale_properties})
 
 def brand_detail(request, slug):
     brand = get_object_or_404(Brand, slug=slug)
