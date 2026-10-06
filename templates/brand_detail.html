@@ -185,7 +185,7 @@
 
 
     .price-luxury-card {
-        background: linear-gradient(135deg, rgba(20, 24, 30, 0.95), rgba(15, 15, 15, 0.98));
+        background: linear-gradient(135deg, rgba(42, 39, 37, 0.95), rgba(34, 32, 30, 0.98));
         border: 1px solid rgba(212, 175, 55, 0.2);
         border-left: 3px solid #d4af37;
         box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.05), 0 5px 15px rgba(0,0,0,0.3);
@@ -232,6 +232,12 @@
     .breadcrumb-item + .breadcrumb-item::before {
         vertical-align: middle;
         padding-top: 4px;
+    }
+
+    /* Property Tabs Hover */
+    .luxury-property-tab:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 </style>
 
@@ -363,16 +369,16 @@
     <!-- Nav Tabs cho Các Cơ sở -->
 
     {% if properties %}
-    <ul class="nav nav-pills justify-content-center mb-5" id="propertyTabs" role="tablist">
+    <ul class="nav nav-pills justify-content-center mb-5 gap-3" id="propertyTabs" role="tablist">
         {% for prop in properties %}
         <li class="nav-item" role="presentation">
-            <button class="nav-link {% if forloop.first %}active{% endif %} rounded-pill px-4 mx-2 fw-semibold shadow-sm" 
+            <button class="nav-link {% if forloop.first %}active{% endif %} rounded-pill px-4 py-2 fw-bold shadow luxury-property-tab" 
                     id="tab-{{ prop.id }}" 
                     data-bs-toggle="pill" 
                     data-bs-target="#content-{{ prop.id }}" 
                     type="button" role="tab" 
-                    style="{% if forloop.first %}background-color: {{ brand.primary_color|default:'#000' }}; color: white;{% else %}color: #555; background-color: white;{% endif %}"
-                    onclick="changeTabColor(this, '{{ brand.primary_color|default:'#000' }}')">
+                    style="font-size: 1.05rem; letter-spacing: 0.5px; transition: all 0.4s ease; border: 1px solid transparent; {% if forloop.first %}background-color: #d4af37; color: #1a1a1a;{% else %}color: rgba(255,255,255,0.7); background-color: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);{% endif %}"
+                    onclick="changeTabColor(this, '#d4af37')">
                 {{ prop.name }}
             </button>
         </li>
@@ -390,7 +396,7 @@
             <div class="row g-4 mb-5">
                 {% for room in prop.room_categories.all %}
                 <div class="col-md-6 col-lg-4">
-                    <div id="room-card-{{ room.id }}" class="card h-100 shadow-sm border-0 luxury-room-card rounded-4 overflow-hidden position-relative bg-body">
+                    <div id="room-card-{{ room.id }}" class="card h-100 shadow-sm border-0 luxury-room-card rounded-4 overflow-hidden position-relative bg-body" onclick="window.location.href='{% url 'room_detail' room.pk %}'" style="cursor: pointer;">
                         <!-- Badge Sale -->
                         {% if room.sale_price %}
                             <span class="badge position-absolute top-0 start-0 m-3 px-3 py-2 fs-6 shadow z-3 luxury-badge">Ưu Đãi Đặc Quyền</span>
@@ -716,11 +722,13 @@
 <script>
 function changeTabColor(activeBtn, color) {
     document.querySelectorAll('#propertyTabs .nav-link').forEach(btn => {
-        btn.style.backgroundColor = 'white';
-        btn.style.color = '#555';
+        btn.style.backgroundColor = 'rgba(255,255,255,0.05)';
+        btn.style.color = 'rgba(255,255,255,0.7)';
+        btn.style.borderColor = 'rgba(255,255,255,0.1)';
     });
     activeBtn.style.backgroundColor = color;
-    activeBtn.style.color = 'white';
+    activeBtn.style.color = '#1a1a1a';
+    activeBtn.style.borderColor = 'transparent';
     
     // Đẩy dữ liệu của tab hiện tại xuống Footer màu đen
     let propId = activeBtn.id.replace('tab-', '');
@@ -793,11 +801,13 @@ document.addEventListener("DOMContentLoaded", function() {
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         z-index: -1;
     }
-    .luxury-outline-btn:hover {
+    .luxury-outline-btn:hover,
+    .luxury-room-card:hover .luxury-outline-btn {
         color: #1a1a1a !important; /* Chữ màu đen khi hover nền vàng */
         box-shadow: 0 10px 20px rgba(212, 175, 55, 0.4) !important;
     }
-    .luxury-outline-btn:hover::before {
+    .luxury-outline-btn:hover::before,
+    .luxury-room-card:hover .luxury-outline-btn::before {
         width: 100%;
     }
 </style>
