@@ -203,7 +203,16 @@
     }
 
 
+    .timer-number {
+        color: #F4F0E8;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 50px;
+        font-weight: 600;
+    }
     @media (max-width: 576px) {
+        .timer-number {
+            font-size: 1.8rem !important;
+        }
         .luxury-timer-box {
             width: 70px !important;
             padding: 1rem 0.2rem !important;
@@ -219,6 +228,7 @@
             gap: 0.5rem !important;
             justify-content: center !important;
             width: 100%;
+            margin-bottom: 3.5rem !important;
         }
     }
 
@@ -240,8 +250,8 @@
         {% for prop in sale_properties %}
         <div class="carousel-item {% if forloop.first %}active{% endif %}">
             <div class="container-fluid position-relative sale-section p-0" style="background-image: linear-gradient(to right, rgba(15, 15, 15, 0.95) 0%, rgba(15, 15, 15, 0.7) 40%, rgba(15, 15, 15, 0.1) 100%), url('{% if prop.sale_background %}{{ prop.sale_background.url }}{% else %}https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2000&auto=format&fit=crop{% endif %}'); background-size: cover; background-position: center; box-shadow: 0 15px 40px rgba(0,0,0,0.6);; min-height: 700px;">
-                <div class="container py-4 d-flex align-items-center h-100">
-                    <div class="row align-items-center justify-content-between my-5 w-100 m-0">
+                <div class="container py-4 d-flex align-items-end align-items-lg-center h-100">
+                    <div class="row align-items-end align-items-lg-center justify-content-between my-5 w-100 m-0 pb-3 pb-lg-0">
                         
                         <!-- Cột trái: Nội dung -->
                         <div class="col-lg-7 text-white mb-5 mb-lg-0 pe-lg-2">
@@ -424,7 +434,16 @@
     }
 
 
+    .timer-number {
+        color: #F4F0E8;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 50px;
+        font-weight: 600;
+    }
     @media (max-width: 576px) {
+        .timer-number {
+            font-size: 1.8rem !important;
+        }
         .luxury-timer-box {
             width: 70px !important;
             padding: 1rem 0.2rem !important;
@@ -440,6 +459,7 @@
             gap: 0.5rem !important;
             justify-content: center !important;
             width: 100%;
+            margin-bottom: 3.5rem !important;
         }
     }
 
@@ -586,7 +606,16 @@
     }
 
 
+    .timer-number {
+        color: #F4F0E8;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 50px;
+        font-weight: 600;
+    }
     @media (max-width: 576px) {
+        .timer-number {
+            font-size: 1.8rem !important;
+        }
         .luxury-timer-box {
             width: 70px !important;
             padding: 1rem 0.2rem !important;
@@ -602,6 +631,7 @@
             gap: 0.5rem !important;
             justify-content: center !important;
             width: 100%;
+            margin-bottom: 3.5rem !important;
         }
     }
 
@@ -833,7 +863,16 @@
     }
 
 
+    .timer-number {
+        color: #F4F0E8;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 50px;
+        font-weight: 600;
+    }
     @media (max-width: 576px) {
+        .timer-number {
+            font-size: 1.8rem !important;
+        }
         .luxury-timer-box {
             width: 70px !important;
             padding: 1rem 0.2rem !important;
@@ -849,6 +888,7 @@
             gap: 0.5rem !important;
             justify-content: center !important;
             width: 100%;
+            margin-bottom: 3.5rem !important;
         }
     }
 
@@ -947,7 +987,16 @@
     }
 
 
+    .timer-number {
+        color: #F4F0E8;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 50px;
+        font-weight: 600;
+    }
     @media (max-width: 576px) {
+        .timer-number {
+            font-size: 1.8rem !important;
+        }
         .luxury-timer-box {
             width: 70px !important;
             padding: 1rem 0.2rem !important;
@@ -963,6 +1012,7 @@
             gap: 0.5rem !important;
             justify-content: center !important;
             width: 100%;
+            margin-bottom: 3.5rem !important;
         }
     }
 
@@ -1020,6 +1070,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 parent.style.display = 'block';
                 parent.style.visibility = 'hidden';
                 parent.style.position = 'absolute';
+                parent.style.width = '100%';
             }
             
             let h = item.offsetHeight;
@@ -1032,6 +1083,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 parent.style.display = '';
                 parent.style.visibility = '';
                 parent.style.position = '';
+                parent.style.width = '';
             }
         });
         
@@ -1081,19 +1133,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     timerContainer.innerHTML = `
                         <div class="text-center luxury-timer-box">
-                            <div style="color: #F4F0E8; font-family: 'Cormorant Garamond', serif; font-size: 50px; font-weight: 600;">${days}</div>
+                            <div class="timer-number">${days}</div>
                             <div class="small text-uppercase mt-2" style="color: #D4AF37; font-family: 'Montserrat', sans-serif; letter-spacing: 2px; font-weight: 600; font-size: 11px;">Ngày</div>
                         </div>
                         <div class="text-center luxury-timer-box">
-                            <div style="color: #F4F0E8; font-family: 'Cormorant Garamond', serif; font-size: 50px; font-weight: 600;">${hours.toString().padStart(2, '0')}</div>
+                            <div class="timer-number">${hours.toString().padStart(2, '0')}</div>
                             <div class="small text-uppercase mt-2" style="color: #D4AF37; font-family: 'Montserrat', sans-serif; letter-spacing: 2px; font-weight: 600; font-size: 11px;">Giờ</div>
                         </div>
                         <div class="text-center luxury-timer-box">
-                            <div style="color: #F4F0E8; font-family: 'Cormorant Garamond', serif; font-size: 50px; font-weight: 600;">${minutes.toString().padStart(2, '0')}</div>
+                            <div class="timer-number">${minutes.toString().padStart(2, '0')}</div>
                             <div class="small text-uppercase mt-2" style="color: #D4AF37; font-family: 'Montserrat', sans-serif; letter-spacing: 2px; font-weight: 600; font-size: 11px;">Phút</div>
                         </div>
                         <div class="text-center luxury-timer-box">
-                            <div style="color: #F4F0E8; font-family: 'Cormorant Garamond', serif; font-size: 50px; font-weight: 600;">${seconds.toString().padStart(2, '0')}</div>
+                            <div class="timer-number">${seconds.toString().padStart(2, '0')}</div>
                             <div class="small text-uppercase mt-2" style="color: #D4AF37; font-family: 'Montserrat', sans-serif; letter-spacing: 2px; font-weight: 600; font-size: 11px;">Giây</div>
                         </div>
                     `;

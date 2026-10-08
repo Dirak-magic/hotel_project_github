@@ -43,14 +43,28 @@ def check_availability(request, pk):
 
     try:
         # Cache level 2: Property Level Raw Data (Fast, avoids Google API)
-        prop_cache_key = f'prop_sheet_data_{prop.id}'
+        prop_cache_key = f'prop_sheet_data_{prop.google_sheet_id}'
         prop_data = cache.get(prop_cache_key)
         
         now = datetime.datetime.now()
         
         if not prop_data:
+            import os
             # Auth using gspread directly
-            client = gspread.service_account(filename=prop.google_sheet_credentials.path)
+            creds_path = None
+            if prop.google_sheet_credentials and os.path.exists(prop.google_sheet_credentials.path):
+                creds_path = prop.google_sheet_credentials.path
+            else:
+                from .models import Property
+                for other_prop in Property.objects.filter(google_sheet_id=prop.google_sheet_id):
+                    if other_prop.google_sheet_credentials and os.path.exists(other_prop.google_sheet_credentials.path):
+                        creds_path = other_prop.google_sheet_credentials.path
+                        break
+            
+            if not creds_path:
+                return JsonResponse({'error': 'Không tìm thấy file credentials hợp lệ cho Sheet ID này.'}, status=400)
+
+            client = gspread.service_account(filename=creds_path)
             spreadsheet = client.open_by_key(prop.google_sheet_id)
             
             # Find tabs for Current Month and Next Month
@@ -60,7 +74,8 @@ def check_availability(request, pk):
             next_tab = f"T{next_month}/{next_year}"
             
             all_ws = spreadsheet.worksheets()
-            ws_dict = {ws.title.strip().lower(): ws for ws in all_ws}
+            # Loại bỏ toàn bộ khoảng trắng để so sánh tên tab (tránh lỗi do gõ dư dấu cách ở giữa hoặc 2 đầu)
+            ws_dict = {ws.title.replace(' ', '').lower(): ws for ws in all_ws}
             
             tabs_to_process = []
             if current_tab.lower() in ws_dict:
@@ -173,9 +188,18 @@ def check_availability(request, pk):
                 
             matched_room_rows = []
             for r_idx, row in enumerate(data):
-                for cell in row:
-                    if str(cell).strip().lower() in target_room_names:
-                        matched_room_rows.append(row)
+                if not row: continue
+                # Thường tên phòng nằm ở cột A hoặc B
+                cell_vals = [str(c).strip().lower() for c in row[:2]]
+                is_matched = False
+                for target_name in target_room_names:
+                    for cell_val in cell_vals:
+                        # Dùng substring: Nếu tên cài trong Admin (VD: 'R01') có chứa trong file Sheet (VD: 'SUN POOL SUITE (R01)')
+                        if target_name and target_name in cell_val:
+                            matched_room_rows.append(row)
+                            is_matched = True
+                            break
+                    if is_matched:
                         break
                         
             if not matched_room_rows:
