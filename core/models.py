@@ -115,6 +115,7 @@ class SiteSetting(models.Model):
     hotline = models.CharField(max_length=20, blank=True, verbose_name='Hotline chung')
     promo_video_url = models.URLField(blank=True, verbose_name='Link Video Giới thiệu (Youtube)')
     promo_video_bg = models.ImageField(upload_to='backgrounds/', blank=True, null=True, verbose_name='Ảnh nền khu vực Video')
+    disable_availability_check = models.BooleanField(default=False, verbose_name='Bảo trì tính năng Tra cứu lịch trống', help_text='Đánh dấu mục này để khóa người dùng tra cứu khi Google bị lỗi.')
 
     class Meta:
         verbose_name = 'Cấu hình Website'

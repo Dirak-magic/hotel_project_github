@@ -29,6 +29,11 @@ def check_availability(request, pk):
     if getattr(request, 'limited', False):
         return JsonResponse({'error': 'Bạn đã tra cứu quá nhiều lần. Vui lòng thử lại sau 1 phút.'}, status=429)
 
+    from .models import SiteSetting
+    site_setting = SiteSetting.objects.first()
+    if site_setting and site_setting.disable_availability_check:
+        return JsonResponse({'error': 'Hệ thống tra cứu lịch trống đang được bảo trì. Vui lòng thử lại sau hoặc liên hệ Hotline để đặt phòng.'}, status=503)
+
     room = get_object_or_404(RoomCategory, pk=pk)
     prop = room.property
     
@@ -240,7 +245,8 @@ def check_availability(request, pk):
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return JsonResponse({'error': str(e)}, status=500)
+        # Thay vì hiện lỗi kỹ thuật hoặc cấu trúc thư mục rỗng, hiện thông báo bảo trì
+        return JsonResponse({'error': 'Hệ thống tra cứu đang tạm thời gián đoạn hoặc bảo trì. Vui lòng liên hệ trực tiếp qua Hotline để kiểm tra phòng trống.'}, status=503)
 
 def contact_view(request):
     from .models import Property, Brand

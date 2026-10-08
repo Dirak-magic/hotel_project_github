@@ -20,7 +20,8 @@ class FAQInline(admin.StackedInline):
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
     inlines = [FAQInline]
-    list_display = ('name', 'slug', 'primary_color')
+    list_display = ('name', 'slug', 'logo_preview', 'primary_color')
+    list_editable = ('primary_color',)
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name',)
     fieldsets = (
@@ -34,12 +35,22 @@ class BrandAdmin(admin.ModelAdmin):
         }),
     )
 
+    def logo_preview(self, obj):
+        if obj.logo:
+            from django.utils.html import format_html
+            return format_html('<img src="{}" style="height: 40px; border-radius: 4px;" />', obj.logo.url)
+        return ""
+    logo_preview.short_description = 'Logo'
+
+
 @admin.register(Property)
 class PropertyAdmin(admin.ModelAdmin):
     list_display = ('name', 'brand', 'hotline', 'email')
+    list_editable = ('hotline', 'email')
     list_filter = ('brand',)
+    list_select_related = ('brand',)
     prepopulated_fields = {'slug': ('name',)}
-    search_fields = ('name', 'address')
+    search_fields = ('name', 'address', 'hotline', 'email')
     fieldsets = (
         ('Thông tin cơ bản', {
             'fields': ('brand', 'name', 'slug', 'address', 'hotline', 'email', 'facebook_link')
@@ -95,9 +106,11 @@ class RoomImageInline(admin.TabularInline):
 @admin.register(RoomCategory)
 class RoomCategoryAdmin(admin.ModelAdmin):
     form = RoomCategoryAdminForm
-    list_display = ('name', 'property', 'base_price', 'sale_price', 'weekend_surcharge')
+    list_display = ('cover_preview', 'name', 'property', 'base_price', 'sale_price', 'weekend_surcharge')
+    list_display_links = ('cover_preview', 'name')
     list_editable = ('base_price', 'sale_price', 'weekend_surcharge')
     list_filter = ('property__brand', 'property')
+    list_select_related = ('property', 'property__brand')
     search_fields = ('name',)
     inlines = [RoomImageInline]
     filter_horizontal = ('amenities',)
@@ -117,6 +130,13 @@ class RoomCategoryAdmin(admin.ModelAdmin):
         }),
     )
 
+    def cover_preview(self, obj):
+        if obj.cover_image:
+            from django.utils.html import format_html
+            return format_html('<img src="{}" style="height: 40px; border-radius: 4px;" />', obj.cover_image.url)
+        return ""
+    cover_preview.short_description = 'Ảnh bìa'
+
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         for f in request.FILES.getlist('gallery_images'):
@@ -124,8 +144,13 @@ class RoomCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(SiteSetting)
 class SiteSettingAdmin(admin.ModelAdmin):
-    list_display = ('site_name',)
+    list_display = ('site_name', 'disable_availability_check')
+    list_editable = ('disable_availability_check',)
     fieldsets = (
+        ('Bảo trì hệ thống', {
+            'fields': ('disable_availability_check',),
+            'description': 'Các tính năng có thể tắt tạm thời khi có sự cố.'
+        }),
         ('Cấu hình chung', {
             'fields': ('site_name', 'footer_text', 'hotline', 'facebook_link', 'homepage_background', 'homepage_background_video')
         }),
