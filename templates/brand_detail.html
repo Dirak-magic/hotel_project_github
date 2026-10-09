@@ -369,16 +369,15 @@
     <!-- Nav Tabs cho Các Chi nhánh -->
 
     {% if properties %}
-    <ul class="nav nav-pills justify-content-center mb-5 gap-3" id="propertyTabs" role="tablist">
+    <ul class="nav justify-content-center mb-5 gap-4" id="propertyTabs" role="tablist">
         {% for prop in properties %}
         <li class="nav-item" role="presentation">
-            <button class="nav-link {% if forloop.first %}active{% endif %} rounded-pill px-4 py-2 fw-bold shadow luxury-property-tab" 
+            <button class="nav-link {% if forloop.first %}active{% endif %} luxury-property-tab" 
                     id="tab-{{ prop.id }}" 
                     data-bs-toggle="pill" 
                     data-bs-target="#content-{{ prop.id }}" 
                     type="button" role="tab" 
-                    style="font-size: 1.05rem; letter-spacing: 0.5px; transition: all 0.4s ease; border: 1px solid transparent; {% if forloop.first %}background-color: #d4af37; color: #1a1a1a;{% else %}color: rgba(255,255,255,0.7); background-color: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);{% endif %}"
-                    onclick="changeTabColor(this, '#d4af37')">
+                    onclick="changeTabColor(this)">
                 {{ prop.name }}
             </button>
         </li>
@@ -518,13 +517,14 @@
 <!-- KHU VỰC TIỆN ÍCH & DỊCH VỤ -->
 <div class="container my-5 pt-5 border-top">
     <div class="text-center mb-5">
-        <h6 class="text-uppercase fw-bold" style="color: #d4af37; letter-spacing: 2px;" style="letter-spacing: 2px;">Dịch vụ Đặc quyền</h6>
+        <h6 class="luxury-section-label">Dịch vụ Đặc quyền</h6>
         <h2 class="display-5 fw-bold mb-3" style="color: var(--bs-heading-color);">Tiện ích miễn phí tại {{ brand.name }}</h2>
-        <p class="mx-auto fs-5" style="color: var(--bs-secondary-color); opacity: 0.9;" style="max-width: 800px;">Trải nghiệm sự hoàn hảo trong từng chi tiết với những đặc quyền dành riêng cho khách lưu trú.</p>
+        <p class="mx-auto fs-5" style="color: #D2C5B2; opacity: 0.9; max-width: 800px;">Trải nghiệm sự hoàn hảo trong từng chi tiết với những đặc quyền dành riêng cho khách lưu trú.</p>
     </div>
 
     <div class="row g-4 justify-content-center">
-        <!-- Ẩm thực -->
+        <!-- Ẩm thực (Chỉ hiện cho Ambergris) -->
+        {% if 'ambergris' in brand.slug %}
         <div class="col-md-6 col-lg-4">
             <div class="p-4 bg-body-tertiary rounded-4 h-100 shadow-sm border text-center transition-hover">
                 <div class="mb-3">
@@ -532,14 +532,11 @@
                 </div>
                 <h4 class="fw-bold mb-3">Ẩm Thực Tinh Tế</h4>
                 <p class="mb-0 mt-2" style="color: var(--bs-secondary-color); font-size: 0.95rem; line-height: 1.8;">
-                    {% if 'ambergris' in brand.slug %}
                     Bữa sáng chọn món (A-la-carte), Welcome drink & Trái cây tươi. Đặc quyền giảm 10% tại quầy Cà phê.
-                    {% else %}
-                    Thức uống Welcome drink & Trái cây tươi chào mừng. Đặc quyền giảm 10% tại quầy Cà phê.
-                    {% endif %}
                 </p>
             </div>
         </div>
+        {% endif %}
         <!-- Giải trí -->
         <div class="col-md-6 col-lg-4">
             <div class="p-4 bg-body-tertiary rounded-4 h-100 shadow-sm border text-center transition-hover">
@@ -596,7 +593,7 @@
 <!-- CHÍNH SÁCH & FAQ SECTION GLOBAL -->
 <div class="container my-5 pt-5 border-top FAQ-section-luxury">
     <div class="text-center mb-5">
-        <h6 class="text-uppercase fw-bold" style="color: #d4af37; letter-spacing: 2px;">Thông tin cần biết</h6>
+        <h6 class="luxury-section-label">Thông tin cần biết</h6>
         <h2 class="display-5 fw-bold mb-3" style="color: var(--bs-heading-color);">Chính sách & FAQ</h2>
     </div>
     <div class="row justify-content-center">
@@ -605,7 +602,7 @@
             <div class="faq-scroll-container pe-2" style="max-height: 550px; overflow-y: auto;">
                 <div class="accordion" id="accordionBrandFaq">
                 {% for faq in brand.faqs.all %}
-                <div class="accordion-item mb-3 border-0 rounded-4 overflow-hidden" style="background: var(--bs-tertiary-bg); box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                <div class="accordion-item mb-3 border-0 rounded-4 overflow-hidden" style="background: var(--bs-secondary-bg); box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: all 0.3s ease;">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed fw-bold py-4 px-4 fs-6 bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-{{ faq.id }}" style="color: var(--bs-heading-color); box-shadow: none;">
                             <span style="border-left: 3px solid #d4af37; padding-left: 15px;">{{ faq.question }}</span>
@@ -673,9 +670,13 @@
         transform: translateY(-4px);
         box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 15px rgba(212, 175, 55, 0.05) !important;
         border-color: rgba(212, 175, 55, 0.3) !important;
+        background-color: #24292F !important;
     }
     #accordionBrandFaq .accordion-item:hover .accordion-button {
         color: #d4af37 !important;
+    }
+    #accordionBrandFaq .accordion-item:hover .accordion-body {
+        color: #f8f9fa !important;
     }
     #accordionBrandFaq .accordion-item:hover .accordion-button span {
         border-left-color: #fce38a !important;
@@ -725,21 +726,96 @@
     .transition-hover:hover::after {
         opacity: 1;
     }
+    
+    /* Luxury Section Label (Static) */
+    .luxury-section-label {
+        color: #d4af37 !important;
+        text-transform: uppercase;
+        font-weight: 600;
+        font-size: 14px; /* Tăng 2px */
+        letter-spacing: 2px;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 8px;
+        margin-bottom: 0;
+    }
+    .luxury-section-label::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 1px;
+        background-color: #d4af37;
+    }
+
+    /* Luxury Property Tab (Interactive) */
+    .luxury-property-tab {
+        color: #d4af37 !important;
+        font-size: 16px !important; /* Tăng 2px */
+        font-weight: 500 !important;
+        opacity: 0.9; /* Chỉnh sáng lên để không bị chìm */
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px !important;
+        transition: all 0.4s ease !important;
+        cursor: pointer;
+    }
+    .luxury-property-tab::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%; /* Đường gạch ngắn hơn khi chưa chọn */
+        height: 1px;
+        background-color: #d4af37;
+        opacity: 0.8;
+        transition: all 0.4s ease;
+    }
+    
+    /* Trạng thái Hover (Rê chuột) */
+    .luxury-property-tab:hover {
+        color: #fce38a !important;
+        opacity: 0.9;
+        transform: scale(1.02);
+    }
+    .luxury-property-tab:hover::after {
+        width: 100%;
+        height: 1.5px;
+        background-color: #fce38a;
+        opacity: 0.8;
+    }
+
+    /* Trạng thái Active (Đang được chọn) */
+    .luxury-property-tab.active {
+        color: #fce38a !important;
+        opacity: 1;
+        font-weight: 600 !important;
+        transform: scale(1.05); /* Phóng to nhẹ để báo hiệu đang chọn */
+        text-shadow: 0 0 1px rgba(252, 227, 138, 0.5); /* Sáng chữ lên */
+    }
+    .luxury-property-tab.active::after {
+        width: 100%;
+        height: 2px; /* Dày hơn */
+        background-color: #fce38a;
+        opacity: 1;
+        box-shadow: 0 2px 5px rgba(252, 227, 138, 0.4); /* Glow nhẹ cho đường gạch */
+    }
 </style>
 
 <!-- Script hỗ trợ đổi màu Tab mượt mà -->
 
 
 <script>
-function changeTabColor(activeBtn, color) {
-    document.querySelectorAll('#propertyTabs .nav-link').forEach(btn => {
-        btn.style.backgroundColor = 'rgba(255,255,255,0.05)';
-        btn.style.color = 'rgba(255,255,255,0.7)';
-        btn.style.borderColor = 'rgba(255,255,255,0.1)';
-    });
-    activeBtn.style.backgroundColor = color;
-    activeBtn.style.color = '#1a1a1a';
-    activeBtn.style.borderColor = 'transparent';
+function changeTabColor(activeBtn) {
+    // CSS .active class handles the styling now (No inline colors needed)
     
     // Đẩy dữ liệu của tab hiện tại xuống Footer màu đen
     let propId = activeBtn.id.replace('tab-', '');
