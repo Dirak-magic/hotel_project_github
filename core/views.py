@@ -101,12 +101,12 @@ def check_availability(request, pk):
                         break
                         
                 if matched_month:
-                    tabs_to_process.append({'ws': ws, 'month': matched_month, 'year': matched_year})
+                    tabs_to_process.append({'ws': ws, 'month': matched_month, 'year': matched_year, 'is_fallback': False})
                     
             if not tabs_to_process:
                 # Fallback to first few tabs if no matches found
                 for ws in all_ws[:6]:
-                    tabs_to_process.append({'ws': ws, 'month': now.month, 'year': now.year})
+                    tabs_to_process.append({'ws': ws, 'month': now.month, 'year': now.year, 'is_fallback': True})
                     
             # Limit to at most 12 tabs to prevent Google API timeout
             tabs_to_process = tabs_to_process[:12]
@@ -122,6 +122,7 @@ def check_availability(request, pk):
                         'title': sheet.title,
                         'month': tab_info['month'],
                         'year': tab_info['year'],
+                        'is_fallback': tab_info['is_fallback'],
                         'data': data
                     })
                     
@@ -145,6 +146,7 @@ def check_availability(request, pk):
             data = tab['data']
             tab_month = tab.get('month', now.month)
             tab_year = tab.get('year', now.year)
+            is_fallback = tab.get('is_fallback', True)
             
             merged_cells = []
             for s in prop_data['meta'].get('sheets', []):
@@ -194,8 +196,9 @@ def check_availability(request, pk):
                     
                     if m1:
                         g1, g2 = m1.groups()
-                        if int(g2) > 12: day, month = int(g2), int(g1)
-                        else: day, month = int(g1), int(g2)
+                        if int(g2) > 12: day, parsed_month = int(g2), int(g1)
+                        else: day, parsed_month = int(g1), int(g2)
+                        month = parsed_month if is_fallback else tab_month
                         is_strict = True
                     elif m2:
                         day = int(m2.group(1))
