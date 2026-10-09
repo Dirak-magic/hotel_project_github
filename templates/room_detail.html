@@ -284,6 +284,7 @@
             pagination: {
                 el: '.swiper-pagination',
                 clickable: true,
+                dynamicBullets: true, /* Giữ dấu chấm trên 1 hàng, thu nhỏ tự động */
             },
             navigation: {
                 nextEl: '.swiper-button-next',
@@ -417,8 +418,18 @@
         font-size: 1.5rem !important;
         font-weight: bold;
     }
+    .swiper-pagination-bullet {
+        border: 2px solid rgba(212, 175, 55, 0.8) !important; /* Viền vàng */
+        background-color: #a09c93 !important; /* Nền Be Xám (Greige) trầm */
+        opacity: 0.6 !important;
+        width: 12px !important;
+        height: 12px !important;
+        transition: all 0.3s ease !important;
+    }
     .swiper-pagination-bullet-active {
-        background-color: #d4af37 !important;
+        background-color: #c4bfae !important; /* Nền Be Xám sáng hơn */
+        border-color: #d4af37 !important; /* Viền vàng sáng */
+        opacity: 1 !important;
     }
 </style>
 

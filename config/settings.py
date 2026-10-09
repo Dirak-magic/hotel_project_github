@@ -156,7 +156,7 @@ MAILERS = {
 # THIẾT LẬP ĐA NGÔN NGỮ ĐÃ BỊ TẮT
 
 # MEDIA CONFIGURATION
-MEDIA_URL = '/media/'
+MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # JAZZMIN ADMIN UI SETTINGS

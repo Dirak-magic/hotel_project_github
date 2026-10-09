@@ -72,33 +72,56 @@ def check_availability(request, pk):
             client = gspread.service_account(filename=creds_path)
             spreadsheet = client.open_by_key(prop.google_sheet_id)
             
-            # Find tabs for Current Month and Next Month
-            current_tab = f"T{now.month}/{now.year}"
-            next_month = now.month + 1 if now.month < 12 else 1
-            next_year = now.year if now.month < 12 else now.year + 1
-            next_tab = f"T{next_month}/{next_year}"
+            # Define target months to look for (Current month + next 11 months = 12 months)
+            target_months = []
+            for i in range(12):
+                m = now.month + i
+                y = now.year
+                while m > 12:
+                    m -= 12
+                    y += 1
+                target_months.append((m, y))
             
             all_ws = spreadsheet.worksheets()
-            # Loại bỏ toàn bộ khoảng trắng để so sánh tên tab (tránh lỗi do gõ dư dấu cách ở giữa hoặc 2 đầu)
-            ws_dict = {ws.title.replace(' ', '').lower(): ws for ws in all_ws}
-            
             tabs_to_process = []
-            if current_tab.lower() in ws_dict:
-                tabs_to_process.append(ws_dict[current_tab.lower()])
-            if next_tab.lower() in ws_dict:
-                tabs_to_process.append(ws_dict[next_tab.lower()])
+            
+            import re
+            for ws in all_ws:
+                title = ws.title.lower()
+                matched_month = None
+                matched_year = None
                 
+                for m, y in target_months:
+                    # Match 't10', 'tháng 10', 'thg 10', '10/2026', '10/26', '10'
+                    if re.search(rf'(?:t|tháng|thang|thg)\s*0?{m}(?!\d)', title) or \
+                       re.search(rf'(?<!\d)0?{m}\s*[/.-]\s*(?:20)?{str(y)[-2:]}(?!\d)', title) or \
+                       re.fullmatch(rf'0?{m}', title.strip()):
+                        matched_month = m
+                        matched_year = y
+                        break
+                        
+                if matched_month:
+                    tabs_to_process.append({'ws': ws, 'month': matched_month, 'year': matched_year})
+                    
             if not tabs_to_process:
-                tabs_to_process = [spreadsheet.sheet1] # Fallback
+                # Fallback to first few tabs if no matches found
+                for ws in all_ws[:6]:
+                    tabs_to_process.append({'ws': ws, 'month': now.month, 'year': now.year})
+                    
+            # Limit to at most 12 tabs to prevent Google API timeout
+            tabs_to_process = tabs_to_process[:12]
                 
             meta = spreadsheet.fetch_sheet_metadata()
             
             prop_data = {'meta': meta, 'tabs': []}
-            for sheet in tabs_to_process:
+            for tab_info in tabs_to_process:
+                sheet = tab_info['ws']
                 data = sheet.get_all_values()
                 if data:
                     prop_data['tabs'].append({
                         'title': sheet.title,
+                        'month': tab_info['month'],
+                        'year': tab_info['year'],
                         'data': data
                     })
                     
@@ -120,6 +143,8 @@ def check_availability(request, pk):
         for tab in prop_data['tabs']:
             sheet_title = tab['title']
             data = tab['data']
+            tab_month = tab.get('month', now.month)
+            tab_year = tab.get('year', now.year)
             
             merged_cells = []
             for s in prop_data['meta'].get('sheets', []):
@@ -148,12 +173,12 @@ def check_availability(request, pk):
 
             date_row_idx = -1
             date_cols = {}
-            current_year = now.year
             month_map = {'jan':1, 'feb':2, 'mar':3, 'apr':4, 'may':5, 'jun':6, 'jul':7, 'aug':8, 'sep':9, 'oct':10, 'nov':11, 'dec':12}
             
             import re as regex
             for r_idx, row in enumerate(data[:10]):
                 dates_found = 0
+                strict_dates_found = 0
                 temp_date_cols = {}
                 for c_idx, cell in enumerate(row):
                     cell_str = str(cell).strip().lower()
@@ -161,29 +186,34 @@ def check_availability(request, pk):
                     
                     m1 = regex.match(r'^(\d{1,2})[-/](\d{1,2})', cell_str)
                     m2 = regex.match(r'^(\d{1,2})[-/]([a-z]{3})', cell_str)
+                    m3 = regex.fullmatch(r'^\d{1,2}$', cell_str)
                     
                     day = None
                     month = None
+                    is_strict = False
+                    
                     if m1:
-                        day, month = m1.groups()
+                        g1, g2 = m1.groups()
+                        if int(g2) > 12: day, month = int(g2), int(g1)
+                        else: day, month = int(g1), int(g2)
+                        is_strict = True
                     elif m2:
-                        day, month_str = m2.groups()
+                        day = int(m2.group(1))
+                        month_str = m2.group(2)
                         month = month_map.get(month_str, None)
+                        is_strict = True
+                    elif m3:
+                        day = int(cell_str)
+                        month = tab_month
                         
-                    if day and month:
+                    if day and month and 1 <= day <= 31 and 1 <= month <= 12:
                         dates_found += 1
-                        # Lấy năm từ tên tab (nếu có), nếu không lấy năm hiện tại
-                        year_to_use = current_year
-                        try:
-                            if '20' in sheet_title:
-                                year_to_use = int(sheet_title.split('/')[-1])
-                        except:
-                            pass
-                            
-                        formatted = f"{year_to_use}-{str(month).zfill(2)}-{str(day).zfill(2)}"
+                        if is_strict: strict_dates_found += 1
+                        
+                        formatted = f"{tab_year}-{str(month).zfill(2)}-{str(day).zfill(2)}"
                         temp_date_cols[c_idx] = formatted
                         
-                if dates_found >= 3:
+                if strict_dates_found >= 3 or dates_found >= 15:
                     date_row_idx = r_idx
                     date_cols = temp_date_cols
                     break
