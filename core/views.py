@@ -92,9 +92,17 @@ def check_availability(request, pk):
                 matched_year = None
                 
                 for m, y in target_months:
+                    # Kiểm tra xem title có chứa năm khác với năm mục tiêu hay không (để tránh nhầm T12/2025 với T12/2026)
+                    year_str_4 = str(y)
+                    year_str_2 = str(y)[-2:]
+                    wrong_4 = re.search(r'\b(20\d\d)\b', title)
+                    wrong_2 = re.search(r'[/.-]([2-9]\d)\b', title)
+                    if (wrong_4 and wrong_4.group(1) != year_str_4) or (wrong_2 and wrong_2.group(1) != year_str_2):
+                        continue
+                        
                     # Match 't10', 'tháng 10', 'thg 10', '10/2026', '10/26', '10'
                     if re.search(rf'(?:t|tháng|thang|thg)\s*0?{m}(?!\d)', title) or \
-                       re.search(rf'(?<!\d)0?{m}\s*[/.-]\s*(?:20)?{str(y)[-2:]}(?!\d)', title) or \
+                       re.search(rf'(?<!\d)0?{m}\s*[/.-]\s*(?:20)?{year_str_2}(?!\d)', title) or \
                        re.fullmatch(rf'0?{m}', title.strip()):
                         matched_month = m
                         matched_year = y
