@@ -26,7 +26,7 @@ for prop in properties:
         for ws in spreadsheet.worksheets()[:5]:
             print(f"  Tab: '{ws.title}'")
             # Print the first row that looks like it has dates
-            data = ws.get_all_values()[:10]
+            data = ws.get_all_values()[:20]
             date_row = None
             for row in data:
                 # check if row has things like '1/11'
@@ -39,8 +39,8 @@ for prop in properties:
             if date_row:
                 print(f"    Date row format sample: {date_row[1:5]} ...")
             else:
-                print(f"    No date row found! First 2 rows:")
-                for r in data[:2]:
-                    print(f"      {r[:10]}")
+                print(f"    No date row found! Row 3 and 4:")
+                for r in data[2:4]:
+                    print(f"      {r[:15]}")
     except Exception as e:
         print(f"Error: {e}")

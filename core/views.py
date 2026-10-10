@@ -72,52 +72,61 @@ def check_availability(request, pk):
             client = gspread.service_account(filename=creds_path)
             spreadsheet = client.open_by_key(prop.google_sheet_id)
             
-            # Define target months to look for (Current month + next 11 months = 12 months)
-            target_months = []
-            for i in range(12):
-                m = now.month + i
-                y = now.year
-                while m > 12:
-                    m -= 12
-                    y += 1
-                target_months.append((m, y))
-            
             all_ws = spreadsheet.worksheets()
             tabs_to_process = []
             
             import re
-            for ws in all_ws:
-                title = ws.title.lower()
-                matched_month = None
-                matched_year = None
+            
+            # Helper function to extract month and year from tab title
+            def extract_tab_month_year(title, current_year):
+                title = title.lower().strip()
+                # Find explicit year (e.g. 2024, 2025, 2026)
+                m_year_4 = re.search(r'\b(202[4-9]|20[3-9]\d)\b', title)
+                year = int(m_year_4.group(1)) if m_year_4 else None
                 
-                for m, y in target_months:
-                    # Kiểm tra xem title có chứa năm khác với năm mục tiêu hay không (để tránh nhầm T12/2025 với T12/2026)
-                    year_str_4 = str(y)
-                    year_str_2 = str(y)[-2:]
-                    wrong_4 = re.search(r'\b(20\d\d)\b', title)
-                    wrong_2 = re.search(r'[/.-]([2-9]\d)\b', title)
-                    if (wrong_4 and wrong_4.group(1) != year_str_4) or (wrong_2 and wrong_2.group(1) != year_str_2):
-                        continue
-                        
-                    # Match 't10', 'tháng 10', 'thg 10', '10/2026', '10/26', '10'
-                    if re.search(rf'(?:t|tháng|thang|thg)\s*0?{m}(?!\d)', title) or \
-                       re.search(rf'(?<!\d)0?{m}\s*[/.-]\s*(?:20)?{year_str_2}(?!\d)', title) or \
-                       re.fullmatch(rf'0?{m}', title.strip()):
-                        matched_month = m
-                        matched_year = y
-                        break
-                        
-                if matched_month:
-                    tabs_to_process.append({'ws': ws, 'month': matched_month, 'year': matched_year, 'is_fallback': False})
+                # Find explicit month (e.g. t10, tháng 10, 10/2024)
+                m_month = re.search(r'(?:t|tháng|thang|thg)\s*(0?[1-9]|1[0-2])(?!\d)', title)
+                if m_month:
+                    month = int(m_month.group(1))
+                else:
+                    m_month_year = re.search(r'\b(0?[1-9]|1[0-2])\s*[/.-]\s*(20\d\d|\d\d)\b', title)
+                    if m_month_year:
+                        month = int(m_month_year.group(1))
+                        y_str = m_month_year.group(2)
+                        if not year:
+                            year = int(y_str) if len(y_str) == 4 else 2000 + int(y_str)
+                    else:
+                        m_num = re.fullmatch(r'(0?[1-9]|1[0-2])', title)
+                        if m_num:
+                            month = int(m_num.group(1))
+                        else:
+                            return None, None
+                            
+                if not year:
+                    year = current_year
+                return month, year
+
+            for ws in all_ws:
+                m, y = extract_tab_month_year(ws.title, now.year)
+                if m and y:
+                    # Only process current and future months, or up to 1 month in the past (to support current week)
+                    tab_date = datetime.date(y, m, 1)
+                    current_date = datetime.date(now.year, now.month, 1)
+                    diff_months = (tab_date.year - current_date.year) * 12 + tab_date.month - current_date.month
                     
+                    if -1 <= diff_months <= 24: # Get up to 2 years ahead
+                        tabs_to_process.append({'ws': ws, 'month': m, 'year': y, 'is_fallback': False})
+            
+            # Sort tabs chronologically
+            tabs_to_process.sort(key=lambda x: (x['year'], x['month']))
+            
             if not tabs_to_process:
                 # Fallback to first few tabs if no matches found
                 for ws in all_ws[:6]:
                     tabs_to_process.append({'ws': ws, 'month': now.month, 'year': now.year, 'is_fallback': True})
                     
-            # Limit to at most 12 tabs to prevent Google API timeout
-            tabs_to_process = tabs_to_process[:12]
+            # Limit to at most 18 tabs to prevent Google API timeout
+            tabs_to_process = tabs_to_process[:18]
                 
             meta = spreadsheet.fetch_sheet_metadata()
             
@@ -154,7 +163,6 @@ def check_availability(request, pk):
             data = tab['data']
             tab_month = tab.get('month', now.month)
             tab_year = tab.get('year', now.year)
-            is_fallback = tab.get('is_fallback', True)
             
             merged_cells = []
             for s in prop_data['meta'].get('sheets', []):
@@ -188,8 +196,11 @@ def check_availability(request, pk):
             import re as regex
             for r_idx, row in enumerate(data[:10]):
                 dates_found = 0
-                strict_dates_found = 0
                 temp_date_cols = {}
+                
+                prev_month = tab_month
+                prev_year = tab_year
+                
                 for c_idx, cell in enumerate(row):
                     cell_str = str(cell).strip().lower()
                     if not cell_str: continue
@@ -200,31 +211,53 @@ def check_availability(request, pk):
                     
                     day = None
                     month = None
-                    is_strict = False
+                    year = tab_year
                     
                     if m1:
-                        g1, g2 = m1.groups()
-                        if int(g2) > 12: day, parsed_month = int(g2), int(g1)
-                        else: day, parsed_month = int(g1), int(g2)
-                        month = parsed_month if is_fallback else tab_month
-                        is_strict = True
+                        # DD/MM or MM/DD. Assume DD/MM for Vietnam usually, unless DD > 12.
+                        g1, g2 = int(m1.group(1)), int(m1.group(2))
+                        if g2 > 12: 
+                            day, month = g2, g1 # MM/DD
+                        else: 
+                            day, month = g1, g2 # DD/MM default
                     elif m2:
                         day = int(m2.group(1))
                         month_str = m2.group(2)
-                        month = month_map.get(month_str, None)
-                        is_strict = True
+                        month = month_map.get(month_str, tab_month)
                     elif m3:
                         day = int(cell_str)
                         month = tab_month
                         
                     if day and month and 1 <= day <= 31 and 1 <= month <= 12:
+                        # Handle year transition (e.g. Dec to Jan in the same tab, or Nov to Dec where tab_month is Jan)
+                        # We use a simple heuristic based on tab_month
+                        if month == 12 and tab_month == 1:
+                            year = tab_year - 1
+                        elif month == 1 and tab_month == 12:
+                            year = tab_year + 1
+                            
+                        # If just using m3 (only numbers 1-31), handle transition from 31 to 1
+                        if m3 and day < 15 and prev_month:
+                            # if day drops significantly (e.g. 31 -> 1), increment month
+                            if dates_found > 0 and day < 15:
+                                # We need to know previous day to be sure, but we can just rely on tab_month for m3.
+                                # Let's try to get previous day string.
+                                # Actually, it's safer to just use tab_month unless we explicitly see a wrap.
+                                pass
+                                
                         dates_found += 1
-                        if is_strict: strict_dates_found += 1
+                        prev_month = month
+                        prev_year = year
                         
-                        formatted = f"{tab_year}-{str(month).zfill(2)}-{str(day).zfill(2)}"
-                        temp_date_cols[c_idx] = formatted
+                        try:
+                            # Validate date by creating datetime object
+                            valid_date = datetime.date(year, month, day)
+                            formatted = valid_date.strftime('%Y-%m-%d')
+                            temp_date_cols[c_idx] = formatted
+                        except ValueError:
+                            pass # Invalid date like 30/02
                         
-                if strict_dates_found >= 3 or dates_found >= 15:
+                if dates_found >= 15 or len(temp_date_cols) >= 5:
                     date_row_idx = r_idx
                     date_cols = temp_date_cols
                     break
