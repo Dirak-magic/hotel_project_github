@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'core',
     'django.contrib.humanize',
     'axes',
@@ -223,3 +225,10 @@ AUTHENTICATION_BACKENDS = [
 AXES_FAILURE_LIMIT = 5  # Lock out after 5 failed attempts
 AXES_COOLOFF_TIME = 1   # Lock out for 1 hour
 AXES_LOCKOUT_TEMPLATE = '403.html' # Or any other template, if not exists it returns plain 403
+
+
+# Cloudinary Settings
+import os
+if os.environ.get('CLOUDINARY_URL'):
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
