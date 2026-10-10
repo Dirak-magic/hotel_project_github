@@ -229,18 +229,21 @@ AXES_LOCKOUT_TEMPLATE = '403.html' # Or any other template, if not exists it ret
 
 # Cloudinary Settings
 import os
-if os.environ.get('CLOUDINARY_URL'):
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 # Fix for django-cloudinary-storage collectstatic bug on Django 5.1+
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
-
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'ddslxggum',
+    'API_KEY': '358556242631882',
+    'API_SECRET': 'vyOYVA1dWXIiAiM6O-ZGidqO0hM'
+}
 
