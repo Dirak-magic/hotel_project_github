@@ -110,9 +110,19 @@ class RoomImage(models.Model):
     def __str__(self):
         return f"Ảnh của {self.room.name}"
 
+def get_video_storage():
+    import os
+    if os.environ.get('CLOUDINARY_URL'):
+        from cloudinary_storage.storage import VideoMediaCloudinaryStorage
+        return VideoMediaCloudinaryStorage()
+    from django.core.files.storage import FileSystemStorage
+    from django.conf import settings
+    return FileSystemStorage(location=settings.MEDIA_ROOT, base_url=settings.MEDIA_URL)
+
 class SiteSetting(models.Model):
     homepage_background = models.ImageField(upload_to="backgrounds/", blank=True, null=True, verbose_name="Ảnh nền Trang chủ")
-    homepage_background_video = models.FileField(upload_to="backgrounds/videos/", blank=True, null=True, verbose_name="Video nền Trang chủ (MP4)", help_text="Sẽ ưu tiên dùng Video thay cho Ảnh nền nếu có")
+
+    homepage_background_video = models.FileField(storage=get_video_storage, upload_to="backgrounds/videos/", blank=True, null=True, verbose_name="Video nền Trang chủ (MP4)", help_text="Sẽ ưu tiên dùng Video thay cho Ảnh nền nếu có")
     site_name = models.CharField(max_length=50, default='AMBERGRIS', verbose_name='Tên Header')
     footer_text = models.CharField(max_length=255, default='© 2026 Ambergris.', verbose_name='Chữ Footer')
     facebook_link = models.URLField(blank=True, verbose_name='Link Facebook')

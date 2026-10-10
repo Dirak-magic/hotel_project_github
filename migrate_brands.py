@@ -28,7 +28,7 @@ def run():
     print("STARTING BRANDS/PROPERTIES MIGRATION TO CLOUDINARY...")
     for model, fields in [(Brand, ['logo', 'banner', 'sale_background']), 
                           (Property, ['background_image']),
-                          (SiteSetting, ['homepage_background', 'promo_video_bg'])]:
+                          (SiteSetting, ['homepage_background', 'homepage_background_video', 'promo_video_bg'])]:
         for obj in model.objects.all():
             for field in fields:
                 field_file = getattr(obj, field)

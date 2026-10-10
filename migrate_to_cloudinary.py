@@ -36,7 +36,7 @@ def run():
         (Property, ['background_image']),
         (RoomCategory, ['cover_image']),
         (RoomImage, ['image']),
-        (SiteSetting, ['homepage_background', 'promo_video_bg']),
+        (SiteSetting, ['homepage_background', 'homepage_background_video', 'promo_video_bg']),
     ]
     
     for model, fields in models_to_migrate:
