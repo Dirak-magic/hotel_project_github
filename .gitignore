@@ -15,8 +15,8 @@ venv.bak/
 # Django
 *.log
 local_settings.py
-db.sqlite3
-media/
+# db.sqlite3
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -32,4 +32,4 @@ Thumbs.db
 
 # Local startup scripts
 *.vbs
-scripts_archive/
+# scripts_archive/
