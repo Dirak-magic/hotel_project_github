@@ -238,4 +238,6 @@ if os.environ.get('CLOUDINARY_URL'):
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
+    # Fix for django-cloudinary-storage collectstatic bug on Django 5.1+
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
