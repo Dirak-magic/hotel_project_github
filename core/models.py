@@ -37,7 +37,11 @@ class Property(models.Model):
     facebook_link = models.URLField(blank=True, verbose_name="Link Facebook")
     background_image = models.ImageField(upload_to="properties/backgrounds/", blank=True, null=True, verbose_name="Ảnh nền Website (Full toàn trang)")
     
-    google_sheet_credentials = models.FileField(upload_to="credentials/", blank=True, null=True, verbose_name="File JSON Credentials (Google API)", help_text="Upload file credentials.json của cơ sở này")
+    from django.core.files.storage import FileSystemStorage
+    from django.conf import settings
+    private_storage = FileSystemStorage(location=settings.MEDIA_ROOT)
+    
+    google_sheet_credentials = models.FileField(storage=private_storage, upload_to='credentials/', blank=True, null=True, verbose_name='File JSON Credentials (Google API)')
     google_sheet_id = models.CharField(max_length=150, blank=True, verbose_name="Google Sheet ID", help_text="Chuỗi ký tự nằm giữa /d/ và /edit trong link Google Sheet")
 
 
@@ -137,3 +141,4 @@ class FAQ(models.Model):
         
     def __str__(self):
         return self.question
+
