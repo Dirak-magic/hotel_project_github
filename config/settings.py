@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'axes',
     'django_otp',
     'django_otp.plugins.otp_totp',
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [
